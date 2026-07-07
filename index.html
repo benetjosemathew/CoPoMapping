@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CO–PO Mapping Prompt Builder · AJCE IQAC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B2A4A; --navy-deep:#12203B; --brass:#A8823C; --brass-soft:#C9A45C;
+  --paper:#FAF8F3; --card:#FFFFFF; --ink:#22262E; --muted:#6E7480; --line:#E3DFD5;
+  --warn-bg:#FBF3E2; --warn-line:#D9B25E; --ok:#2E7D50;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 "Inter",system-ui,sans-serif;padding-bottom:80px}
+header{background:var(--navy);color:#F2EFE7;padding:34px 20px 30px;border-bottom:4px solid var(--brass)}
+.wrap{max-width:880px;margin:0 auto;padding:0 8px}
+header .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass-soft);margin-bottom:8px}
+header h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:30px;line-height:1.2}
+header p{margin-top:8px;color:#C7CBD6;max-width:620px;font-size:14px}
+main{max-width:880px;margin:28px auto 0;padding:0 20px}
+section.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:18px;position:relative}
+.step-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.step-num{font-family:"Fraunces",Georgia,serif;font-size:22px;color:var(--brass);font-weight:600;min-width:44px}
+.step-head h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:19px;color:var(--navy)}
+.step-head .opt{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px}
+label.fl{display:block;font-size:12.5px;font-weight:600;color:var(--navy);letter-spacing:.02em;margin:14px 0 5px}
+label.fl:first-of-type{margin-top:0}
+input[type=text],select,textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font:14px/1.55 "Inter",sans-serif;background:#FDFCFA;color:var(--ink)}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass)}
+.grid2{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:6px 16px;margin-top:6px}
+.checks label,.ckline label{display:flex;gap:9px;align-items:flex-start;font-size:14px;cursor:pointer;padding:4px 2px}
+.checks input,.ckline input,.radios input{accent-color:var(--brass);width:16px;height:16px;margin-top:3px;flex-shrink:0}
+.notebar{background:#F3F1EA;border-left:3px solid var(--navy);border-radius:0 6px 6px 0;padding:9px 13px;font-size:13px;color:#3C4250;margin-bottom:12px}
+.warnbar{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:8px;padding:11px 14px;font-size:13.5px;margin-bottom:12px;display:flex;gap:10px}
+.warnbar b{color:#7A5A14}
+.ckline{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.radios{display:flex;flex-direction:column;gap:10px}
+.radios label{display:flex;gap:11px;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:13px 15px;transition:border-color .15s}
+.radios label:has(input:checked){border-color:var(--brass);background:#FCF9F2}
+.radios .rt b{display:block;font-size:14.5px;color:var(--navy)}
+.radios .rt span{font-size:13px;color:var(--muted)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+button{font:600 14.5px "Inter",sans-serif;border-radius:7px;padding:12px 22px;cursor:pointer;border:1px solid transparent}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy-deep)}
+.btn-ghost{background:#fff;color:var(--navy);border-color:var(--navy)}
+.btn-ghost:hover{background:#F3F1EA}
+button:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+#preview{display:none;background:var(--navy-deep);color:#DDE3EE;border-radius:10px;padding:20px;margin-bottom:18px}
+#preview h2{font-family:"Fraunces",Georgia,serif;font-size:18px;color:var(--brass-soft);margin-bottom:4px}
+#preview .pmeta{font-size:12.5px;color:#8E99B0;margin-bottom:12px}
+#promptOut{width:100%;height:300px;background:#0D1830;color:#CBD5E6;border:1px solid #2A3A5C;border-radius:6px;padding:14px;font:12.5px/1.55 "JetBrains Mono",monospace;white-space:pre;overflow:auto}
+#copied{color:var(--brass-soft);font-size:13px;align-self:center;opacity:0;transition:opacity .3s}
+.err{color:#A63A2B;font-size:13px;font-weight:600;margin-top:10px;display:none}
+.claudebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(90deg,#20304F,#1B2A4A);border:1px solid var(--brass);border-radius:8px;padding:14px 18px;margin-top:16px}
+.claudebar .cb-text{flex:1;min-width:220px}
+.claudebar .cb-text b{display:block;color:#F2EFE7;font-size:14.5px}
+.claudebar .cb-text span{color:#AEB8CC;font-size:13px}
+.claudebar a.cb-btn{display:inline-block;background:var(--brass);color:#1B2A4A;font-weight:600;font-size:14px;text-decoration:none;border-radius:7px;padding:11px 20px;white-space:nowrap}
+.claudebar a.cb-btn:hover{background:var(--brass-soft)}
+.claudebar a.cb-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
+footer b{color:var(--navy)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="eyebrow">AJCE · Internal Quality Assurance Cell · NBA / OBE</div>
+  <h1>CO–PO Mapping Prompt Builder</h1>
+  <p>Fill in your course details below and this page assembles a ready-to-use prompt. Paste or upload the prompt in Claude to receive the complete CO–PO/PSO/WK mapping Excel workbook for your course file.</p>
+</div></header>
+
+<main>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">01</span><h2>Course details</h2></div>
+  <div class="grid2">
+    <div><label class="fl" for="subj">Subject name</label><input type="text" id="subj" placeholder="e.g., Design of Steel Structures"></div>
+    <div><label class="fl" for="hours">Total contact hours</label><input type="text" id="hours" placeholder="e.g., 36"></div>
+    <div><label class="fl" for="mods">Number of modules</label><input type="text" id="mods" placeholder="e.g., 5"></div>
+  </div>
+  <label class="fl" for="proj">Project component</label>
+  <select id="proj">
+    <option value="none">No project component</option>
+    <option value="minor">Minor group assignments only (below ~20% of marks, no formal report/presentation)</option>
+    <option value="full">Full project / mini-project with written report and presentation</option>
+  </select>
+  <p class="hint">A CO6 (teamwork) is added only for a full project or mini-project. Minor group assignments do not honestly justify PO8/PO9 mapping.</p>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">02</span><h2>Syllabus</h2></div>
+  <label class="fl" for="syl">Paste the full syllabus, module-wise</label>
+  <textarea id="syl" rows="10" placeholder="Module 1: ... (7 Hours)&#10;...&#10;Module 2: ..."></textarea>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">03</span><h2>Current course outcomes</h2><span class="opt">optional — required only for the revision option</span></div>
+  <label class="fl" for="cos">Paste the existing COs, if the course already has them</label>
+  <textarea id="cos" rows="6" placeholder="CO1 ...&#10;CO2 ..."></textarea>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">04</span><h2>Assessment methods</h2></div>
+  <div class="notebar"><b>Type A (default for every course):</b> Two internal series examinations. These are assumed automatically — nothing to tick.</div>
+  <label class="fl">Type B — tick every additional assessment method used in this course</label>
+  <div class="checks" id="typeB">
+    <label><input type="checkbox" value="Quizzes">Quizzes</label>
+    <label><input type="checkbox" value="Seminars">Seminars</label>
+    <label><input type="checkbox" value="Presentations">Presentations</label>
+    <label><input type="checkbox" value="Case studies">Case studies</label>
+    <label><input type="checkbox" value="Mini-projects">Mini-projects</label>
+    <label><input type="checkbox" value="Problem-based learning">Problem-based learning</label>
+    <label><input type="checkbox" value="Viva voce">Viva voce</label>
+    <label><input type="checkbox" value="Portfolios">Portfolios</label>
+    <label><input type="checkbox" value="Industrial visit reports">Industrial visit reports</label>
+    <label><input type="checkbox" value="Coding contests">Coding contests</label>
+    <label><input type="checkbox" value="Hackathons">Hackathons</label>
+    <label><input type="checkbox" value="AI-assisted assessments">AI-assisted assessments</label>
+  </div>
+  <div class="ckline">
+    <label><input type="checkbox" id="alignCOs"><span><b>Align COs with the ticked Type B methods.</b> The generated/revised COs will be phrased so the selected assessment methods can directly measure them, and mappings may cite these methods where the PO is genuinely assessed by them.</span></label>
+  </div>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">05</span><h2>Programme Specific Outcomes</h2></div>
+  <div class="warnbar">⚠<div><b>Default: AJCE Civil Engineering PSOs.</b> If you belong to another department, replace the text below with <b>your department's PSOs</b> before generating. The Performance Indicator (PI) list embedded in the prompt is also the <a href="https://www.amaljyothi.ac.in/staffprofile/ca_pis.php?deptCode=21" target="_blank" rel="noopener" style="color:#7A5A14;font-weight:600">officially published AJCE Civil Engineering PO-CA-PI framework ↗</a> — each department defines its own PIs, and the generated prompt will warn you if your subject looks like it belongs to a different department.</div></div>
+  <textarea id="psos" rows="7">PSO1: Apply mathematical and scientific principles to identify, formulate and solve problems related to all streams in Civil Engineering.
+PSO2: Function effectively as a team member, use modern engineering tools, conduct survey and laboratory experiments/field investigations, prepare detailed estimates for complex Civil Engineering work and interpret data for application to real life problems.
+PSO3: Apply ethical principles and execute and communicate sustainable solutions for Civil Engineering problems and projects.</textarea>
+</section>
+
+<section class="step">
+  <div class="step-head"><span class="step-num">06</span><h2>Output</h2></div>
+  <div class="radios">
+    <label><input type="radio" name="mode" value="new" checked><span class="rt"><b>1 · Generate new COs and full mapping workbook</b><span>Fresh COs (L1–L6) + CO–PO/PSO matrix, justifications, WK mapping, PI/PSO/WK references, industrial relevance.</span></span></label>
+    <label><input type="radio" name="mode" value="revise"><span class="rt"><b>2 · Revise my existing COs and generate everything</b><span>Everything in option 1, plus a CO Revision Justification sheet comparing your original and revised COs. Requires COs pasted in step 03.</span></span></label>
+  </div>
+  <div class="ckline">
+    <label><input type="checkbox" id="plainText"><span><b>3 · Also output the CO–PO / CO–PSO mapping as plain text</b> (pipe-delimited lines for pasting into browser-based portals).</span></label>
+  </div>
+  <div class="btnrow">
+    <button class="btn-primary" id="genBtn" type="button">Generate prompt</button>
+  </div>
+  <p class="err" id="errMsg"></p>
+</section>
+
+<section id="preview">
+  <h2>Your prompt is ready</h2>
+  <p class="pmeta" id="pmeta"></p>
+  <textarea id="promptOut" readonly></textarea>
+  <div class="btnrow">
+    <button class="btn-ghost" id="copyBtn" type="button" style="background:#fff">Copy to clipboard</button>
+    <button class="btn-ghost" id="dlBtn" type="button" style="background:#fff">Download as .md</button>
+    <span id="copied">Copied ✓</span>
+  </div>
+  <div class="claudebar">
+    <div class="cb-text">
+      <b>Recommended: use Claude to run this prompt</b>
+      <span>Open Claude, paste the prompt (or upload the downloaded .md file) in a new chat, and send. Claude will build and return the complete Excel workbook for your course file.</span>
+    </div>
+    <a class="cb-btn" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude ↗</a>
+  </div>
+</section>
+
+<footer>CO–PO Mapping Prompt Builder · <b>v1.1</b> · July 2026 · AJCE IQAC · PI framework synced with the official AJCE PO-CA-PI publication · Works fully offline, no data leaves this page.</footer>
+</main>
+
+<script>
+const PI_SOURCE = 'https://www.amaljyothi.ac.in/staffprofile/ca_pis.php?deptCode=21';
+
+const PI_LIST = `PO1 Engineering Knowledge:
+1.1.1 Apply mathematical techniques such as calculus, linear algebra and statistics modelling to solve problems; 1.1.2 Apply advanced mathematical techniques to model and solve engineering problems; 1.2.1 Apply laws of natural science to an engineering problem; 1.3.1 Apply fundamental engineering concepts to solve engineering problems; 1.4.1 Apply engineering concepts to solve engineering problems.
+PO2 Problem Analysis:
+2.1.1 Articulate problem statements and identify objectives; 2.1.2 Identify engineering systems, variables and parameters to solve the problems; 2.1.3 Identify the mathematical, engineering and other relevant knowledge that applies to a given problem; 2.2.1 Reframe complex problems into interconnected sub-problems; 2.2.2 Identify, assemble and evaluate information and resources; 2.2.3 Identify existing processes/solution methods for solving the problem, including forming justified approximations and assumptions; 2.2.4 Compare and contrast alternative solution processes to select the best process; 2.3.1 Combine scientific principles and engineering concepts to formulate models (mathematical or otherwise) of a system or process that is appropriate in terms of applicability and required accuracy; 2.3.2 Identify assumptions (mathematical and physical) necessary to allow modeling of a system at the level of accuracy required; 2.4.1 Apply engineering mathematics and computations to solve mathematical models; 2.4.2 Produce and validate results through skillful use of contemporary engineering tools and models; 2.4.3 Identify sources of error in the solution process, and limitations of the solution; 2.4.4 Extract desired understanding and conclusions consistent with objectives and limitations of the analysis.
+PO3 Design/Development of Solutions:
+3.1.1 Recognize that need analysis is key to good problem definition; 3.1.2 Elicit and document engineering requirements from stakeholders; 3.1.3 Synthesize engineering requirements from a review of the state-of-the-art; 3.1.4 Extract engineering requirements from relevant engineering Codes and Standards such as ASME, ASTM, BIS, ISO and ASHRAE; 3.1.5 Explore and synthesize engineering requirements considering health, safety risks, environmental, cultural and societal issues; 3.1.6 Determine design objectives, functional requirements and arrive at specifications; 3.2.1 Apply formal idea generation tools to develop multiple engineering design solutions; 3.2.2 Build models/prototypes to develop a diverse set of design solutions; 3.2.3 Identify suitable criteria for the evaluation of alternative design solutions; 3.3.1 Apply formal decision-making tools to select optimal engineering design solutions for further development; 3.3.2 Consult with domain experts and stakeholders to select candidate engineering design solutions for further development; 3.4.1 Refine a conceptual design into a detailed design within the existing constraints of the resources; 3.4.2 Generate information through appropriate tests to improve or revise the design.
+PO4 Conduct Investigations of Complex Problems:
+4.1.1 Define a problem, its scope and importance for purposes of investigation; 4.1.2 Examine the relevant methods, tools and techniques of experiment design, calibration, data acquisition, analysis and presentation; 4.1.3 Apply appropriate instrumentation and/or software tools to make measurements of physical quantities; 4.1.4 Establish a relationship between measured data and underlying physical principles; 4.2.1 Design and develop an experimental approach, specify appropriate equipment and procedures; 4.2.2 Understand the importance of the statistical design of experiments and choose an appropriate experimental design plan based on the study objectives; 4.3.1 Use appropriate procedures, tools and techniques to conduct experiments and collect data; 4.3.2 Analyze data for trends and correlations, stating possible errors and limitations; 4.3.3 Represent data (in tabular and/or graphical forms) so as to facilitate analysis and explanation of the data, and drawing of conclusions; 4.3.4 Synthesize information and knowledge about the problem from the raw data to reach appropriate conclusions.
+PO5 Engineering Tool Usage:
+5.1.1 Identify modern engineering tools such as computer-aided drafting, modeling and analysis techniques and resources for engineering activities; 5.1.2 Create/adapt/modify/extend tools and techniques to solve engineering problems; 5.2.1 Identify the strengths and limitations of tools for (i) acquiring information, (ii) modeling and simulating, (iii) monitoring system performance, and (iv) creating engineering designs; 5.2.2 Demonstrate proficiency in using discipline-specific tools; 5.3.1 Discuss limitations and validate tools, techniques and resources; 5.3.2 Verify the credibility of results from tool use with reference to the accuracy and limitations, and the assumptions inherent in their use.
+PO6 The Engineer and The World:
+6.1.1 Identify and describe various engineering roles, particularly as pertains to protection of the public and public interest at the global, regional and local level; 6.2.1 Interpret legislation, regulations, codes, and standards relevant to your discipline and explain its contribution to the protection of the public.
+PO7 Ethics:
+8.1.1 Identify situations of unethical professional conduct and propose ethical alternatives; 8.2.1 Identify tenets of the ASME professional code of ethics; 8.2.2 Examine and apply moral & ethical principles to known case studies.
+PO8 Individual and Collaborative Team work:
+9.1.1 Recognize a variety of working and learning preferences, appreciate the value of diversity on a team; 9.1.2 Implement the norms of practice (e.g. rules, roles, charters, agendas, etc.) of effective team work, to accomplish a goal; 9.2.1 Demonstrate effective communication, problem-solving, conflict resolution and leadership skills; 9.2.2 Treat other team members respectfully; 9.2.3 Listen to other members; 9.2.4 Maintain composure in difficult situations; 9.3.1 Present results as a team with smooth integration of contributions from all individual efforts.
+PO9 Communication:
+10.1.1 Read, understand and interpret technical and non-technical information; 10.1.2 Produce clear, well-constructed and well-supported written engineering documents; 10.1.3 Create flow in a document or presentation - a logical progression of ideas so that the main point is clear; 10.2.1 Listen to and comprehend information, instructions and viewpoints of others; 10.2.2 Deliver effective oral presentations to technical and non-technical audiences; 10.3.1 Create engineering-standard figures, reports and drawings to complement writing and presentations; 10.3.2 Use a variety of media effectively to convey a message in a document or a presentation.
+PO10 Project Management and Finance:
+11.1.1 Describe various economic and financial costs/benefits of an engineering activity; 11.1.2 Analyze different forms of financial statements to evaluate the financial status of an engineering project; 11.2.1 Analyze and select the most appropriate proposal based on economic and financial considerations; 11.3.1 Identify the tasks required to complete an engineering activity and the resources required to complete the tasks; 11.3.2 Use project management tools to schedule an engineering project so it is completed on time and on budget.
+PO11 Life-Long Learning:
+12.1.1 Describe the rationale for the requirement for continuing professional development; 12.1.2 Identify deficiencies or gaps in knowledge and demonstrate an ability to source information to close this gap; 12.2.1 Identify historic points of technological advance in engineering that required practitioners to seek education in order to stay current; 12.2.2 Recognize the need and be able to clearly explain why it is vitally important to keep current regarding new developments in your field; 12.3.1 Source and comprehend technical literature and other credible sources of information; 12.3.2 Analyze sourced technical and popular information for feasibility, viability, sustainability, etc.`;
+
+const WK_LIST = `WK1 A systematic, theory-based understanding of the natural sciences applicable to the discipline and awareness of relevant social sciences.
+WK2 Conceptually-based mathematics, numerical analysis, data analysis, statistics and formal aspects of computer and information science to support detailed analysis and modelling applicable to the discipline.
+WK3 A systematic, theory-based formulation of engineering fundamentals required in the engineering discipline.
+WK4 Engineering specialist knowledge that provides theoretical frameworks and bodies of knowledge for the accepted practice areas in the engineering discipline; much is at the forefront of the discipline.
+WK5 Knowledge, including efficient resource use, environmental impacts, whole-life cost, re-use of resources, net zero carbon, and similar concepts, that supports engineering design and operations in a practice area.
+WK6 Knowledge of engineering practice (technology) in the practice areas in the engineering discipline.
+WK7 Knowledge of the role of engineering in society and identified issues in engineering practice in the discipline, such as the professional responsibility of an engineer to public safety and sustainable development.
+WK8 Engagement with selected knowledge in the current research literature of the discipline, awareness of the power of critical thinking and creative approaches to evaluate emerging issues.
+WK9 Ethics, inclusive behavior and conduct. Knowledge of professional ethics, responsibilities, and norms of engineering practice. Awareness of the need for diversity by reason of ethnicity, gender, age, physical ability etc. with mutual understanding and respect, and of inclusive attitudes.`;
+
+function projText(v){
+  if(v==='full') return 'Yes - full project / mini-project with a written report and presentation.';
+  if(v==='minor') return 'Minor group assignments only (below ~20% of marks, no formal report/presentation). Per the CO6 rule this does NOT qualify as a project - do NOT add CO6.';
+  return 'No project component. Do NOT add CO6.';
+}
+
+function buildPrompt(){
+  const subj=document.getElementById('subj').value.trim();
+  const hours=document.getElementById('hours').value.trim();
+  const mods=document.getElementById('mods').value.trim();
+  const proj=document.getElementById('proj').value;
+  const syl=document.getElementById('syl').value.trim();
+  const cos=document.getElementById('cos').value.trim();
+  const psos=document.getElementById('psos').value.trim();
+  const mode=document.querySelector('input[name=mode]:checked').value;
+  const plain=document.getElementById('plainText').checked;
+  const align=document.getElementById('alignCOs').checked;
+  const typeB=[...document.querySelectorAll('#typeB input:checked')].map(c=>c.value);
+
+  const sheets=[
+    '1. "Course Outcomes" - columns: CO | Course Outcome Statement | Bloom\'s Level (L1-L6).'
+  ];
+  if(mode==='revise') sheets.push('2. "CO Revision Justification" - columns: CO | Original CO (as given) | Revised CO | Bloom\'s Level | Justification for Change. Explain every change (single dominant verb, correct Bloom level, coverage gaps, measurability).');
+  let n=sheets.length;
+  sheets.push(
+    `${++n}. "CO-PO-PSO Matrix" - rows = COs; columns = PO1..PO11 then PSO1..PSO3 (PSO headers a different shade); cells 3/2/1/"-"; final row = column averages via live AVERAGE formulas rounded to 1 decimal.`,
+    `${++n}. "CO-PO Justification" - columns: CO | PO | Strength | PI(s) Addressed | Justification.`,
+    `${++n}. "CO-PSO Justification" - columns: CO | PSO | Strength | Justification (direct linkage to the PSO clause).`,
+    `${++n}. "PI Reference" - the PIs actually cited, with codes and full official wording; include a source note: "AJCE Civil Engineering PO-CA-PI framework, ${PI_SOURCE}".`,
+    `${++n}. "PSO Reference" - the PSO statements used in this run.`,
+    `${++n}. "CO-WK Matrix" - rows = COs; columns = WK1..WK9; cells 3/2/1/"-"; final row = live column averages.`,
+    `${++n}. "CO-WK Justification" - columns: CO | WK | Strength | Justification.`,
+    `${++n}. "WK Reference" - the nine WK statements.`,
+    `${++n}. "Industrial Relevance" - a single concise paragraph (approx. 120-180 words) on the industrial relevance of this course: sectors, employers, technologies and employment pathways it serves, written for the course file / SAR.`
+  );
+
+  let p=`You are preparing NBA/OBE accreditation artifacts for an engineering course. Using the inputs at the end of this prompt, ${mode==='revise'?'review and revise the existing Course Outcomes, then':'write Course Outcomes and'} produce a CO-PO/PSO and CO-WK mapping Excel workbook. Follow these rules exactly.
+
+A. COURSE OUTCOMES
+- ${mode==='revise'?'Review the COs I provide. Revise each so that it has':'Generate exactly 5 COs (CO1-CO5), normally one per module or logical group of modules, covering the whole syllabus. Each must have'} one dominant, measurable action verb ("Apply/Develop/Use/Analyze ... to ..."). Never use understand, know, learn, study, or be aware of. Never use two coordinate action verbs in one CO.
+${mode==='revise'?'- Keep exactly 5 COs (CO1-CO5) covering the whole syllabus; fix coverage gaps against the syllabus.\n':''}- Tag each CO with its Bloom level using L1-L6 notation (NOT K1-K6). Use mostly Apply (L3) for foundational courses, rising to Analyze (L4) or higher only where the content justifies it.
+- Add CO6 ("Work collaboratively in a team to develop, document and present a [subject] solution." L3/L4) ONLY if the project input below says a full project/mini-project exists. Otherwise do not add CO6.
+${align&&typeB.length?`- The course uses these Type B assessment methods: ${typeB.join(', ')}. Phrase the COs so these methods can directly assess them, where natural. Do not force it.`:''}
+
+B. ASSESSMENT CONTEXT (use for honest mapping decisions)
+- Type A assessment (always present): two internal series examinations.
+- Type B assessment methods used in this course: ${typeB.length?typeB.join(', '):'none'}.
+- A PO/WK may draw mapping support from a Type B method ONLY where that method genuinely and formally assesses it (e.g. Presentations may support PO9 only if formally assessed with marks; Mini-projects may support PO8).
+
+C. MAPPING METHOD (be honest; never over-map)
+- Correlation scale: 3 high, 2 medium, 1 low, blank ("-") = no correlation.
+- A CO maps to a PO only if its content develops, and the course assesses, one or more of that PO's Performance Indicators (PIs). Strength = how many PIs are covered and how deeply: most/deep = 3, some = 2, one/indirect = 1.
+- Cite the exact PI code(s) for every non-blank CO-PO cell. Justify CO-PSO cells by direct linkage to the PSO clause. Justify CO-WK cells by direct linkage to the WK statement.
+- Leave POs/PSOs/WKs blank where the course does not genuinely develop AND assess them. Empty cells are expected. Do not map Design (PO3), Society (PO6), Ethics (PO7), Project Management (PO10) unless the syllabus truly covers them. A blank or a 1 is better than an inflated score.
+- For CO6 the usual honest anchors are PO8 (teamwork), PO9 (communication, only with report/presentation) and PO11 (life-long learning, only if students self-learn beyond what is taught).
+- Compute the column average (one decimal) for every mapped PO/PSO/WK using live Excel AVERAGE formulas.
+
+D. REFERENCE - POs and PIs (keep codes exactly)
+Source: AJCE Civil Engineering PO-CA-PI framework, officially published at ${PI_SOURCE}
+IMPORTANT: This PI list belongs to the AJCE Civil Engineering (B.Tech) program. If my subject clearly belongs to another department or program, WARN me before proceeding, since each department defines its own PIs in its SAR.
+${PI_LIST}
+
+E. PSOs FOR THIS RUN
+${psos}
+(If these are the AJCE Civil Engineering PSOs and my subject is from another department, warn me before proceeding.)
+
+F. WK REFERENCE (Washington Accord / GAPC Knowledge & Attitude Profile)
+${WK_LIST}
+
+G. DELIVERABLE - EXCEL WORKBOOK (.xlsx)
+Build a workbook (Arial font; frozen header rows; cells color-coded 3=green, 2=amber, 1=orange; zero formula errors; verify formulas recalculate cleanly) with EXACTLY these sheets, then give me the file for download:
+${sheets.join('\n')}
+`;
+
+  if(plain){
+    p+=`
+H. ADDITIONAL DELIVERABLE - PLAIN TEXT MAPPING
+After the Excel, output the CO-PO and CO-PSO mapping as plain text, strictly: only two headings, exactly "CO-PO MAPPINGS" and "CO-PSO MAPPINGS"; one line per non-blank cell, pipe-delimited (CO | PO | strength | justification text). No tables, no markdown, no extra headings, and never put the "|" character inside justification text.
+`;
+  }
+
+  p+=`
+MY INPUTS FOR THIS RUN
+Subject: ${subj}
+Total hours / number of modules: ${hours} hours / ${mods} modules
+Project: ${projText(proj)}
+${mode==='revise'?`
+Existing Course Outcomes (to be reviewed and revised):
+${cos}
+`:''}
+Syllabus:
+${syl}
+`;
+  return p;
+}
+
+document.getElementById('genBtn').addEventListener('click',()=>{
+  const err=document.getElementById('errMsg');
+  const syl=document.getElementById('syl').value.trim();
+  const subj=document.getElementById('subj').value.trim();
+  const mode=document.querySelector('input[name=mode]:checked').value;
+  const cos=document.getElementById('cos').value.trim();
+  err.style.display='none';
+  if(!subj){err.textContent='Please enter the subject name (step 01).';err.style.display='block';return;}
+  if(!syl){err.textContent='Please paste the syllabus (step 02).';err.style.display='block';return;}
+  if(mode==='revise'&&!cos){err.textContent='Option 2 revises your existing COs - please paste them in step 03, or choose option 1.';err.style.display='block';return;}
+  const prompt=buildPrompt();
+  document.getElementById('promptOut').value=prompt;
+  document.getElementById('pmeta').textContent=`${subj} · ${mode==='revise'?'Revise existing COs':'New COs'} · ${document.getElementById('plainText').checked?'with':'without'} plain-text mapping · ${prompt.length.toLocaleString()} characters`;
+  document.getElementById('preview').style.display='block';
+  document.getElementById('preview').scrollIntoView({behavior:'smooth'});
+});
+
+document.getElementById('copyBtn').addEventListener('click',async()=>{
+  const t=document.getElementById('promptOut');
+  try{await navigator.clipboard.writeText(t.value);}
+  catch(e){t.select();document.execCommand('copy');}
+  const c=document.getElementById('copied');c.style.opacity='1';setTimeout(()=>c.style.opacity='0',1800);
+});
+
+document.getElementById('dlBtn').addEventListener('click',()=>{
+  const subj=document.getElementById('subj').value.trim().replace(/[^a-z0-9]+/gi,'_')||'course';
+  const blob=new Blob([document.getElementById('promptOut').value],{type:'text/markdown'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`CO_PO_prompt_${subj}.md`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>
