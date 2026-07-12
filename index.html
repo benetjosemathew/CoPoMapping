@@ -11,7 +11,7 @@
      SETUP: 1) Sign up at https://www.goatcounter.com (free) and choose a site code, e.g. "ajce-coursefile".
             2) Replace YOURCODE below with that code. Dashboard: https://YOURCODE.goatcounter.com
      Counts page visits + a "generate" event each time a prompt is generated. No cookies, no personal data. -->
-<script data-goatcounter="https://YOURCODE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://bennetjosemathew.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>
 :root{
   --navy:#1B2A4A; --navy-deep:#12203B; --brass:#A8823C; --brass-soft:#C9A45C;
@@ -162,8 +162,8 @@ footer b{color:var(--navy)}
 </section>
 
 <section class="step" data-mode="both">
-  <div class="step-head"><span class="step-num"></span><h2>Assessment methods &amp; project component <span class="opt">for the next time this course runs</span></h2></div>
-  <p class="hint" style="margin-bottom:10px">This describes what's <b>planned going forward</b> — not necessarily what was used in a past offering. For a new course, that's simply this offering; for a review, it's what you intend to use next cycle (carry forward, drop, or add methods as you see fit).</p>
+  <div class="step-head"><span class="step-num"></span><h2>Assessment methods &amp; project component <span class="opt">for the next offering</span></h2></div>
+  <p class="hint" style="margin-bottom:10px">This describes what's <b>planned going forward</b> — not necessarily what was used in the past offering. For a new course, that's simply this offering; for a review, it's what you intend to use for the next offering (carry forward, drop, or add methods as you see fit).</p>
   <label class="fl" for="proj">Project component</label>
   <select id="proj">
     <option value="none">No project component</option>
@@ -217,7 +217,7 @@ PSO3: Apply ethical principles and execute and communicate sustainable solutions
 
 <section class="step" data-mode="both">
   <div class="step-head"><span class="step-num"></span><h2>Anything else worth mentioning?</h2><span class="opt">optional</span></div>
-  <label class="fl" for="otherNotes">e.g., mark distribution changed between Series 1/2 this cycle, a new assessment method was introduced partway through, syllabus coverage was truncated, this is a split-section course, etc.</label>
+  <label class="fl" for="otherNotes">e.g., mark distribution changed between Series 1/2 in the past offering, a new assessment method was introduced partway through, syllabus coverage was truncated, this is a split-section course, etc.</label>
   <textarea id="otherNotes" rows="4"></textarea>
   <p class="hint">Leave blank if nothing unusual applies. This isn't something Claude can infer from numbers alone — if something changed, say so here in your own words.</p>
 </section>
@@ -250,18 +250,19 @@ PSO3: Apply ethical principles and execute and communicate sustainable solutions
 <section class="step" data-mode="review">
   <div class="step-head"><span class="step-num"></span><h2>Course Outcome wording</h2></div>
   <div class="ckline" style="border-top:none;padding-top:0;margin-top:0">
-    <label><input type="checkbox" id="allowCORevision"><span><b>Allow Claude to revise CO wording where the attainment data strongly justifies it</b> — not just flag it. If left unchecked, Claude will only note revision suggestions (matching the standard faculty format) without rewriting any CO.</span></label>
+    <label><input type="checkbox" id="allowCORevision"><span><b>Allow Claude to review the COs and update wording only where it genuinely adds value</b> — this is conditional, not a blanket rewrite. If a CO is chronically under-attained because it's unmeasurable, double-barrelled, or doesn't match what's actually assessed, Claude may revise it; otherwise every CO is left exactly as is. If left unchecked, Claude will only note revision suggestions in the report (matching the standard faculty format) without rewriting any CO's actual wording.</span></label>
   </div>
-  <p class="hint">If checked and Claude does rewrite a CO, it must show an Original → Revised → Bloom level → Justification table. The refreshed mapping workbook (produced either way) will reflect the final decided values.</p>
+  <p class="hint">Either way you get an "As Taught vs Final" table in the report — identical wording in both columns if nothing needed changing, so the review is documented even when the answer is "no change." If checked and Claude does revise a CO, it also shows an Original → Revised → Bloom level → Justification table, and the mapping workbook is re-justified against the final wording.</p>
   <div class="ckline">
     <label><input type="checkbox" id="plainTextReview"><span><b>Also output the CO–PO / CO–PSO mapping as plain text</b> (pipe-delimited lines for pasting into browser-based portals), in addition to the two files.</span></label>
+    <p class="hint" style="color:#B3261E;font-weight:600;margin-top:4px">It is advised to ignore this under normal circumstances.</p>
   </div>
 </section>
 
 <section class="step" data-mode="review">
   <div class="step-head"><span class="step-num"></span><h2>Faculty sign-off</h2><span class="opt">optional</span></div>
   <div class="grid2b">
-    <div><label class="fl" for="facultyOld">Faculty in charge (this offering)</label><input type="text" id="facultyOld" placeholder="Name"></div>
+    <div><label class="fl" for="facultyOld">Faculty in charge (past offering)</label><input type="text" id="facultyOld" placeholder="Name"></div>
     <div><label class="fl" for="facultyNew">Faculty in charge (next offering)</label><input type="text" id="facultyNew" placeholder="Name, if different"></div>
   </div>
   <p class="hint">If left blank, the report will just include blank signature lines for both. The report will also note that it is to be submitted to the Module Committee for approval and suggestions.</p>
@@ -346,7 +347,7 @@ function buildHelperPromptText(){
 Keep each summary to a few sentences so I can paste it directly into a course-exit report.
 `;
   if(cos){
-    t += `\nFor reference, this course's current Course Outcomes are:\n${cos}\n`;
+    t += `\nFor reference, this course's COs as taught in the past offering are:\n${cos}\n`;
   }
   t += `\n[PASTE THE END-SEM PAPER AND/OR FEEDBACK EXPORT BELOW]`;
   return t;
@@ -841,14 +842,14 @@ Type B assessment methods planned for the next offering: ${typeB.length?typeB.jo
 B. ATTAINMENT DATA (extracted from the CO Attainment workbook — summary only, no student-level data)
 ${attSummary || 'Not provided — ask me for it before proceeding if the report needs it.'}
 
-C. EXISTING CO-PO/PSO MAPPING (from the AES portal export, or pasted manually — includes current COs, CO-PO matrix, CO-PSO matrix, and PO/PSO wording where available)
+C. EXISTING CO-PO/PSO MAPPING (from the AES portal export, or pasted manually — includes the COs as taught in the past offering, CO-PO matrix, CO-PSO matrix, and PO/PSO wording where available)
 ${mapSummary || 'Not provided.'}
 
-D. SYLLABUS AND CURRENT COs
+D. SYLLABUS AND COs AS TAUGHT (PAST OFFERING)
 Syllabus:
 ${syl || 'Not provided.'}
 
-Current COs:
+COs as taught (past offering):
 ${cos || 'Not provided.'}
 
 PSOs for this run:
@@ -878,14 +879,14 @@ ${allowRevision
 H. PO FRAMEWORK AND MAPPING-CHANGE RULES
 PO framework for this run: ${legacy ? '12 POs (legacy SAR format)' : '11 POs (current NBA / GAPC v4.0 format)'}. Framework detected from the attached AES export: ${detectedLabel}.
 ${frameworkChanged
-  ? 'IMPORTANT: the selected framework differs from what was detected in the attached AES export. PI codes do not align cell-for-cell between the two schemes, so treat this as a full remapping: redraw the entire CO-PO matrix from scratch under the newly selected framework, using the syllabus, COs, project component and Type B assessment methods above, and the honest-mapping rules below. Do NOT mechanically relabel or carry over the old numeric values. Note in the CO-PO Justification sheet that the framework changed this cycle and why.'
+  ? 'IMPORTANT: the selected framework differs from what was detected in the attached AES export. PI codes do not align cell-for-cell between the two schemes, so treat this as a full remapping: redraw the entire CO-PO matrix from scratch under the newly selected framework, using the syllabus, COs, project component and Type B assessment methods above, and the honest-mapping rules below. Do NOT mechanically relabel or carry over the old numeric values. Note in the CO-PO Justification sheet that the framework changed since the past offering and why.'
   : 'The selected framework matches what was detected (or no AES export was provided) — no framework-driven remapping is required.'}
 ${legacy?'PI code alignment in legacy mode: the PI list below already uses 12-attribute numbering, so realign codes to POs as follows - 6.x.x PIs belong to PO6 (Engineer and Society); 8.x.x to PO8 (Ethics); 9.x.x to PO9 (Team Work); 10.x.x to PO10 (Communication); 11.x.x to PO11 (Project Management); 12.x.x to PO12 (Life-Long Learning). Old PO7 (Environment and Sustainability) has NO published PIs - justify any PO7 mapping by direct linkage to the PO7 statement (as done for PSOs), and only where the syllabus genuinely covers environment/sustainability. Ignore the 11-PO grouping labels in the PI list below where they conflict with this alignment.\n':''}
-Mapping honesty rules (apply whether or not any cell value actually changes this cycle):
+Mapping honesty rules (apply whether or not any cell value actually changes for the next offering):
 - Correlation scale: 3 high, 2 medium, 1 low, blank ("-") = no correlation.
 - A CO maps to a PO only if its content develops, and the course assesses, one or more of that PO's Performance Indicators (PIs). Cite the exact PI code(s) for every non-blank CO-PO cell. Justify CO-PSO cells by direct linkage to the PSO clause. A Type B method above may support a PO/WK mapping only where it genuinely and formally assesses it.
 - Leave POs/PSOs blank where the course does not genuinely develop AND assess them. Do not map ${cautionList} unless the syllabus truly covers them. A blank or a 1 is better than an inflated score.
-- Do NOT change any CO-PO or CO-PSO cell value from what's in section C UNLESS: (a) you revised the corresponding CO's wording under section G, (b) the report's own Mapping Review section explicitly proposes and justifies a change based on this semester's attainment data, or (c) the framework changed as above. Re-derive the justification (PI citations) for the FINAL values either way — even values that stay numerically identical need a fresh, honest justification, since the attached AES export carries the numbers but no justification trail of its own.
+- Do NOT change any CO-PO or CO-PSO cell value from what's in section C UNLESS: (a) you revised the corresponding CO's wording under section G, (b) the report's own Mapping Review section explicitly proposes and justifies a change based on the past offering's attainment data, or (c) the framework changed as above. Re-derive the justification (PI citations) for the FINAL values either way — even values that stay numerically identical need a fresh, honest justification, since the attached AES export carries the numbers but no justification trail of its own.
 - Compute the column average (one decimal) for every mapped PO/PSO/WK using live Excel AVERAGE formulas.
 
 I. REFERENCE - POs AND PIs (keep codes exactly)
@@ -899,20 +900,20 @@ ${WK_LIST}
 K. COURSE EXIT, ATTAINMENT GAP & NEXT-OFFERING REPORT STRUCTURE (build all of this; it is a superset of the department's standard faculty exit-review format)
 1. Letterhead, exactly as three lines, centered: (i) "AMAL JYOTHI COLLEGE OF ENGINEERING (AUTONOMOUS)", (ii) "Department of Civil Engineering", (iii) the course title followed by the course code in brackets, e.g. "Design of Steel Structures (23CET401)". Below the letterhead, add a line: "Class: [class/batch] · Term: [term reviewed]", and directly under that, a note: "To be submitted to the Module Committee for approval and suggestions."
 2. Executive summary — one short paragraph: overall attainment health, how many COs met target, headline concerns.
-3. Course Outcomes — As Taught vs Final — CO | Wording as taught this offering | Final wording (identical to "as taught" unless revised) | Bloom Level. Always include this table, whether or not anything changed, so the course file has a clear record either way.
+3. Course Outcomes — As Taught vs Final — CO | Wording as taught (past offering) | Final wording (carried into the next offering; identical to "as taught" unless revised) | Bloom Level. Always include this table, whether or not anything changed, so the course file has a clear record either way.
 4. CO Target vs Attainment table — CO | Target | Attainment Score | Gap (%) | Attainment Level | Attained? (Y/N) | Action proposed to bridge the gap (tie the action to whichever specific component underperformed — internal marks, external/end-sem marks, or the indirect survey) | Target revision (per the target-revision policy).
 5. Internal Assessment observations — Series 1, Series 2, Assignment(s), Other assessment(s), Laboratory (if applicable) — grounded in the per-CO mark distribution data. When describing how marks are distributed per CO, report the NUMBER of questions and total marks contributing to each CO (e.g. "CO2 was assessed by 3 questions worth 14 marks"), not the raw question-number/tag list. If one or more questions are shared across multiple COs (i.e. a single question contributes to more than one CO's total), call this out as a separate, distinct observation rather than folding it into the per-CO counts.
 6. End Semester Examination observations — CO coverage (phrased honestly for the detected scheme), Bloom's Taxonomy distribution, difficulty level, alignment with COs. Apply the same question-count-not-tag-list rule as item 5 if question-level data is available. Default assumption: if the end-sem paper's marks are NOT explicitly tagged to individual COs (no question-to-CO mapping given, e.g. a typical KTU-scheme paper), assume the end-sem marks are distributed EQUALLY across all COs rather than guessing an uneven split — state this assumption explicitly rather than presenting it as measured fact.
 7. Student Feedback observations and proposed action.
 8. Revision of CO(s) — the detailed justification table if anything was revised (item 3 above already gives the at-a-glance old-vs-final view).
-9. Review of CO-PO/CO-PSO Mapping — existing mapping vs proposed change, for any pair where this semester's data suggests a mismatch. State the change and a one-line rationale for each; for the full PI-cited justification behind any mapping value (changed or not), refer the reader to the accompanying CO-PO/PSO mapping workbook rather than duplicating the complete citation text here.
+9. Review of CO-PO/CO-PSO Mapping — existing mapping vs proposed change, for any pair where the past offering's data suggests a mismatch. State the change and a one-line rationale for each; for the full PI-cited justification behind any mapping value (changed or not), refer the reader to the accompanying CO-PO/PSO mapping workbook rather than duplicating the complete citation text here.
 10. Consolidated action plan for the next offering — a short prioritized bullet list pulling together items 3-9.
-11. Signatures — two signature blocks side by side or stacked: "Faculty In-Charge (This Offering): ${facultyOld||'_______________________'}   Signature: _______________   Date: _______________" and "Faculty In-Charge (Next Offering): ${facultyNew||'_______________________'}   Signature: _______________   Date: _______________". If both names are the same or only one was given, still show both blocks (the same person may sign twice, once for each role).
+11. Signatures — two signature blocks side by side or stacked: "Faculty In-Charge (Past Offering): ${facultyOld||'_______________________'}   Signature: _______________   Date: _______________" and "Faculty In-Charge (Next Offering): ${facultyNew||'_______________________'}   Signature: _______________   Date: _______________". If both names are the same or only one was given, still show both blocks (the same person may sign twice, once for each role).
 Format: Word document (.docx), in the AJCE navy (#1B2A4A) and gold/brass (#A8823C) design system — navy section headers, brass accents, color-coded Target/Attainment cells (green = attained with margin, amber = attained close to target, red = not attained).
 
-L. CO-PO/PSO MAPPING WORKBOOK STRUCTURE (.xlsx — produce this EVERY time, regardless of whether anything changed this cycle)
+L. CO-PO/PSO MAPPING WORKBOOK STRUCTURE (.xlsx — produce this EVERY time, regardless of whether anything changed for the next offering)
 Open with the same three-line letterhead as the report (College name, Department, Course title with code in brackets), then build these sheets, in this order. If you did not revise any CO, skip sheet 2 entirely and shift the remaining sheet numbers up by one — do not leave a numbered gap.
-1. "Course Outcomes" - CO | Statement | Bloom's Level (L1-L6) - reflecting the FINAL COs for this cycle (revised if applicable, otherwise unchanged, but still Bloom-tagged).
+1. "Course Outcomes" - CO | Statement | Bloom's Level (L1-L6) - reflecting the FINAL COs carried into the next offering (revised if applicable, otherwise unchanged from the past offering, but still Bloom-tagged).
 2. (Only if a CO was revised) "CO Revision Justification" - Original CO | Revised CO | Bloom Level | Justification for Change.
 3. "CO-PO-PSO Matrix" - rows = COs; columns = PO1..${poMax} then PSO1..PSO3 (PSO headers a different shade); cells 3/2/1/"-"; final row = column averages via live AVERAGE formulas rounded to 1 decimal. Reflects the FINAL decided values per the mapping-change rules above.
 4. "CO-PO Justification" - CO | PO | Strength | PI(s) Addressed | Justification. This is the authoritative, full rationale for every mapping value — the report only summarizes changes and points here for detail.
@@ -926,7 +927,7 @@ Open with the same three-line letterhead as the report (College name, Department
 Format: Arial font; frozen header rows; cells color-coded 3=green, 2=amber, 1=orange; zero formula errors; verify formulas recalculate cleanly.
 
 M. DELIVERABLES
-Give me BOTH files for download every time, independent of whether COs or mappings were actually revised this cycle:
+Give me BOTH files for download every time, independent of whether COs or mappings were actually revised for the next offering:
 1. The Course Exit, Attainment Gap & Next-Offering Report as a .docx, per section K.
 2. The CO-PO/PSO mapping workbook as a .xlsx, per section L.
 ${plainTextReview?'3. After the two files, also output the CO-PO and CO-PSO mapping as plain text: only two headings, exactly "CO-PO MAPPINGS" and "CO-PSO MAPPINGS"; one line per non-blank cell, pipe-delimited (CO | PO | strength | justification text). No tables, no markdown, no extra headings, and never put the "|" character inside justification text.':''}
