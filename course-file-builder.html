@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course File &amp; Attainment Prompt Builder · AJCE Dept. of Civil Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- ANALYTICS (GoatCounter - free, cookieless, privacy-friendly)
+     SETUP: 1) Sign up at https://www.goatcounter.com (free) and choose a site code, e.g. "ajce-coursefile".
+            2) Replace YOURCODE below with that code. Dashboard: https://YOURCODE.goatcounter.com
+     Counts page visits + a "generate" event each time a prompt is generated. No cookies, no personal data. -->
+<script data-goatcounter="https://YOURCODE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+:root{
+  --navy:#1B2A4A; --navy-deep:#12203B; --brass:#A8823C; --brass-soft:#C9A45C;
+  --paper:#FAF8F3; --card:#FFFFFF; --ink:#22262E; --muted:#6E7480; --line:#E3DFD5;
+  --warn-bg:#FBF3E2; --warn-line:#D9B25E; --ok:#2E7D50; --ok-bg:#EAF4EC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 "Inter",system-ui,sans-serif;padding-bottom:80px}
+header{background:var(--navy);color:#F2EFE7;padding:34px 20px 30px;border-bottom:4px solid var(--brass)}
+.wrap{max-width:880px;margin:0 auto;padding:0 8px}
+header .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass-soft);margin-bottom:8px}
+header h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:28px;line-height:1.2}
+header p{margin-top:8px;color:#C7CBD6;max-width:640px;font-size:14px}
+main{max-width:880px;margin:28px auto 0;padding:0 20px}
+section.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:18px;position:relative}
+.step-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.step-num{font-family:"Fraunces",Georgia,serif;font-size:22px;color:var(--brass);font-weight:600;min-width:44px}
+.step-head h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:19px;color:var(--navy)}
+.step-head .opt{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px}
+label.fl{display:block;font-size:12.5px;font-weight:600;color:var(--navy);letter-spacing:.02em;margin:14px 0 5px}
+label.fl:first-of-type{margin-top:0}
+input[type=text],input[type=number],select,textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font:14px/1.55 "Inter",sans-serif;background:#FDFCFA;color:var(--ink)}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:var(--brass)}
+.grid2{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.grid2,.grid2b,.grid3{grid-template-columns:1fr}}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:6px 16px;margin-top:6px}
+.checks label,.ckline label{display:flex;gap:9px;align-items:flex-start;font-size:14px;cursor:pointer;padding:4px 2px}
+.checks input,.ckline input,.radios input{accent-color:var(--brass);width:16px;height:16px;margin-top:3px;flex-shrink:0}
+.notebar{background:#F3F1EA;border-left:3px solid var(--navy);border-radius:0 6px 6px 0;padding:9px 13px;font-size:13px;color:#3C4250;margin-bottom:12px}
+.warnbar{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:8px;padding:11px 14px;font-size:13.5px;margin-bottom:12px;display:flex;gap:10px}
+.warnbar b{color:#7A5A14}
+.okbar{background:var(--ok-bg);border:1px solid #BFE0C9;border-radius:8px;padding:11px 14px;font-size:13.5px;margin:10px 0;display:flex;gap:10px;color:#1F5636}
+.okbar b{color:var(--ok)}
+.ckline{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.radios{display:flex;flex-direction:column;gap:10px}
+.radios label{display:flex;gap:11px;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:13px 15px;transition:border-color .15s}
+.radios label:has(input:checked){border-color:var(--brass);background:#FCF9F2}
+.radios .rt b{display:block;font-size:14.5px;color:var(--navy)}
+.radios .rt span{font-size:13px;color:var(--muted)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+button{font:600 14.5px "Inter",sans-serif;border-radius:7px;padding:12px 22px;cursor:pointer;border:1px solid transparent}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy-deep)}
+.btn-ghost{background:#fff;color:var(--navy);border-color:var(--navy)}
+.btn-ghost:hover{background:#F3F1EA}
+button:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.filebox{border:1.5px dashed var(--line);border-radius:8px;padding:16px;text-align:center;background:#FDFCFA}
+.filebox input[type=file]{font-size:13px}
+.filebox.has-file{border-color:var(--ok);background:var(--ok-bg)}
+.parsestatus{font-size:12.5px;margin-top:8px;color:var(--muted)}
+.parsestatus.ok{color:var(--ok);font-weight:600}
+.parsestatus.err{color:#A63A2B;font-weight:600}
+#preview{display:none;background:var(--navy-deep);color:#DDE3EE;border-radius:10px;padding:20px;margin-bottom:18px}
+#preview h2{font-family:"Fraunces",Georgia,serif;font-size:18px;color:var(--brass-soft);margin-bottom:4px}
+#preview .pmeta{font-size:12.5px;color:#8E99B0;margin-bottom:12px}
+#promptOut{width:100%;height:300px;background:#0D1830;color:#CBD5E6;border:1px solid #2A3A5C;border-radius:6px;padding:14px;font:12.5px/1.55 "JetBrains Mono",monospace;white-space:pre;overflow:auto}
+#copied{color:var(--brass-soft);font-size:13px;align-self:center;opacity:0;transition:opacity .3s}
+.err{color:#A63A2B;font-size:13px;font-weight:600;margin-top:10px;display:none}
+.claudebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(90deg,#20304F,#1B2A4A);border:1px solid var(--brass);border-radius:8px;padding:14px 18px;margin-top:16px}
+.claudebar .cb-text{flex:1;min-width:220px}
+.claudebar .cb-text b{display:block;color:#F2EFE7;font-size:14.5px}
+.claudebar .cb-text span{color:#AEB8CC;font-size:13px}
+.claudebar a.cb-btn{display:inline-block;background:var(--brass);color:#1B2A4A;font-weight:600;font-size:14px;text-decoration:none;border-radius:7px;padding:11px 20px;white-space:nowrap}
+.claudebar a.cb-btn:hover{background:var(--brass-soft)}
+.claudebar a.cb-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
+footer b{color:var(--navy)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="eyebrow">AJCE · Dept. of Civil Engineering · NBA / OBE</div>
+  <h1>Course File &amp; Attainment Prompt Builder</h1>
+  <p>One page for both moments in a course's life: setting up a fresh course file, or reviewing one that's already been taught. Pick which below — the relevant steps follow. This page assembles a ready-to-use prompt; paste it into Claude to get the actual workbook/report back.</p>
+</div></header>
+
+<main>
+
+<section class="step" data-mode="both">
+  <div class="step-head"><span class="step-num"></span><h2>What are we doing today?</h2></div>
+  <div class="radios" id="pageModeRadios">
+    <label><input type="radio" name="pageMode" value="new" checked><span class="rt"><b>Set up a course file — new offering, no attainment data yet</b><span>Generate fresh Course Outcomes (or revise given ones) and the complete CO&ndash;PO/PSO/WK mapping workbook from the syllabus.</span></span></label>
+    <label><input type="radio" name="pageMode" value="review"><span class="rt"><b>Review a previously taught course — I have attainment data</b><span>Upload last semester's CO Attainment workbook (and the AES CO&ndash;PO/PSO export) for a course-exit gap report plus a refreshed mapping workbook.</span></span></label>
+  </div>
+</section>
+
+<section class="step" data-mode="review">
+  <div class="step-head"><span class="step-num"></span><h2>Course master data — CO&ndash;PO/PSO mapping export</h2></div>
+  <div class="okbar"><b>Fastest path:</b><div>Get this file from the AES portal: go to <a href="https://www.aesajce.in/academic/comaster.php" target="_blank" rel="noopener" style="color:#1F5636;font-weight:600">aesajce.in/academic/comaster.php ↗</a>, find your subject, and click its <b>CO&rarr;PO/PSO</b> column to download the mapping file. (Requires AES login — the link only opens if you're already signed in.) Uploading it here auto-fills course code, course name, all COs, the CO&ndash;PO and CO&ndash;PSO matrices, and the full PO/PSO wording.</div></div>
+  <div class="filebox" id="fbox1">
+    <input type="file" id="aesFile" accept=".xls,.xlsx">
+  </div>
+  <p class="parsestatus" id="aesStatus"></p>
+  <div id="aesPreviewWrap" style="display:none">
+    <label class="fl">Detected course</label>
+    <p id="aesCourseLine" style="font-size:14px;color:var(--ink);margin-bottom:6px"></p>
+    <label class="fl" for="aesSummary">Extracted CO/PO/PSO data (check it, and correct anything the parser missed)</label>
+    <textarea id="aesSummary" rows="10"></textarea>
+  </div>
+  <p class="hint">Don't have portal access, or teaching another department? Leave this blank and fill course details, COs and the mapping manually further down.</p>
+</section>
+
+<section class="step" data-mode="both">
+  <div class="step-head"><span class="step-num"></span><h2>Course details</h2></div>
+  <label class="fl" for="subj">Subject name &amp; code</label>
+  <input type="text" id="subj" placeholder="e.g., 23CET401 Design of Steel Structures">
+  <div class="grid2b onlyNew" style="margin-top:10px">
+    <div><label class="fl" for="hours">Total contact hours</label><input type="text" id="hours" placeholder="e.g., 36"></div>
+    <div><label class="fl" for="mods">Number of modules</label><input type="text" id="mods" placeholder="e.g., 5"></div>
+  </div>
+  <div class="grid2b onlyReview" style="margin-top:10px">
+    <div><label class="fl" for="cls">Class / batch</label><input type="text" id="cls" placeholder="e.g., BTCE2022-26-S7"></div>
+    <div><label class="fl" for="term">Term reviewed</label><input type="text" id="term" placeholder="e.g., Odd 2025-26"></div>
+  </div>
+  <p class="hint onlyReview">Subject name &amp; code auto-fill from the AES export above if uploaded. Class/batch and term aren't in that file — the portal export is course-level, not offering-specific — so enter those here.</p>
+  <label class="fl" for="pof">PO framework</label>
+  <select id="pof">
+    <option value="11">11 POs — current NBA / GAPC v4.0 (PO6: The Engineer and The World)</option>
+    <option value="12">12 POs — legacy SAR (PO6: Engineer &amp; Society, PO7: Environment &amp; Sustainability)</option>
+  </select>
+  <p class="hint" id="pofNote">Choose 12 POs only if your course file still follows the older SAR format. In legacy mode, old PO7 (Environment &amp; Sustainability) has no published PIs — mappings to it are justified by direct linkage to the PO statement, like PSOs.</p>
+  <div class="onlyReview">
+    <label class="fl" for="scheme">Assessment scheme</label>
+    <select id="scheme">
+      <option value="auto">Auto-detect from the uploaded attainment workbook (recommended)</option>
+      <option value="ktu">KTU / University exam — end-sem marks are NOT broken down by CO (single "ALL COs" lump score)</option>
+      <option value="auto-scheme">Autonomous — end-sem exam questions ARE individually tagged to a CO</option>
+    </select>
+    <p class="hint">KTU-affiliated batches typically can't claim granular end-sem CO coverage since the university doesn't publish a question-to-CO map. Autonomous courses set their own end-sem paper, so genuine per-CO coverage commentary is possible. Auto-detect checks the uploaded workbook for the "ALL COs" tag and tells you what it found — override here if it guesses wrong.</p>
+  </div>
+</section>
+
+<section class="step" data-mode="review">
+  <div class="step-head"><span class="step-num"></span><h2>Previous semester's CO Attainment workbook</h2></div>
+  <p class="hint" style="margin-bottom:10px">Upload the standard 5-sheet workbook (Assessment Methods · Students CO Score · Indirect Assessment · Direct Assessment · CO Attainment). Only the two summary sheets are read — no student names or individual marks are extracted or leave this page.</p>
+  <div class="filebox" id="fbox2">
+    <input type="file" id="attFile" accept=".xls,.xlsx">
+  </div>
+  <p class="parsestatus" id="attStatus"></p>
+  <label class="fl" for="attSummary">Extracted summary (auto-filled — check it, and correct anything the parser missed)</label>
+  <textarea id="attSummary" rows="10" placeholder="Upload the workbook above to auto-fill this, or paste/type the CO Attainment summary manually: CO | Target | Direct Assessment | Indirect Assessment | Attainment Score | % students meeting target | Level | Attained?"></textarea>
+</section>
+
+<section class="step" data-mode="both">
+  <div class="step-head"><span class="step-num"></span><h2>Assessment methods &amp; project component <span class="opt">for the next time this course runs</span></h2></div>
+  <p class="hint" style="margin-bottom:10px">This describes what's <b>planned going forward</b> — not necessarily what was used in a past offering. For a new course, that's simply this offering; for a review, it's what you intend to use next cycle (carry forward, drop, or add methods as you see fit).</p>
+  <label class="fl" for="proj">Project component</label>
+  <select id="proj">
+    <option value="none">No project component</option>
+    <option value="minor">Minor group assignments only (below ~20% of marks, no formal report/presentation)</option>
+    <option value="full">Full project / mini-project with written report and presentation</option>
+  </select>
+  <p class="hint">A CO6 (teamwork) is added only for a full project or mini-project. Minor group assignments do not honestly justify PO8/PO9 mapping.</p>
+  <div class="notebar"><b>Type A (default for every course):</b> Two internal series examinations. These are assumed automatically — nothing to tick.</div>
+  <label class="fl">Type B — tick every additional assessment method planned for the next offering</label>
+  <div class="checks" id="typeB">
+    <label><input type="checkbox" value="Quizzes">Quizzes</label>
+    <label><input type="checkbox" value="Seminars">Seminars</label>
+    <label><input type="checkbox" value="Presentations">Presentations</label>
+    <label><input type="checkbox" value="Case studies">Case studies</label>
+    <label><input type="checkbox" value="Mini-projects">Mini-projects</label>
+    <label><input type="checkbox" value="Problem-based learning">Problem-based learning</label>
+    <label><input type="checkbox" value="Viva voce">Viva voce</label>
+    <label><input type="checkbox" value="Portfolios">Portfolios</label>
+    <label><input type="checkbox" value="Industrial visit reports">Industrial visit reports</label>
+    <label><input type="checkbox" value="AI-assisted assessments">AI-assisted assessments</label>
+  </div>
+  <div class="ckline">
+    <label><input type="checkbox" id="typeBOther"><span><b>Other — please specify</b></span></label>
+    <div id="typeBOtherWrap" style="display:none;margin-top:8px">
+      <label class="fl" for="typeBOtherText" style="margin-top:0">Describe the other assessment method(s)</label>
+      <textarea id="typeBOtherText" rows="2" placeholder="e.g., peer-assessed design critique, take-home lab report..."></textarea>
+    </div>
+  </div>
+  <div class="ckline">
+    <label><input type="checkbox" id="alignCOs"><span><b>Align COs with the ticked Type B methods.</b> The generated/revised COs will be phrased so the selected assessment methods can directly measure them, and mappings may cite these methods where the PO is genuinely assessed by them.</span></label>
+  </div>
+</section>
+
+<section class="step" data-mode="both">
+
+  <div class="step-head"><span class="step-num"></span><h2>Syllabus &amp; course outcomes</h2></div>
+  <label class="fl" for="syl">Paste the syllabus, module-wise</label>
+  <textarea id="syl" rows="8" placeholder="Module 1: ... (7 Hours)&#10;...&#10;Module 2: ..."></textarea>
+  <label class="fl" for="cos">Course outcomes <span class="opt onlyNew">optional — required only for the revision option below</span><span class="opt onlyReview">auto-filled from the AES export above if uploaded</span></label>
+  <textarea id="cos" rows="5" placeholder="CO1 ...&#10;CO2 ..."></textarea>
+</section>
+
+<section class="step" data-mode="both">
+  <div class="step-head"><span class="step-num"></span><h2>Programme Specific Outcomes</h2></div>
+  <div class="warnbar">⚠<div><b>Default: AJCE Civil Engineering PSOs.</b> If you belong to another department, replace the text below with <b>your department's PSOs</b> before generating. The Performance Indicator (PI) list embedded in the prompt is also the <a href="https://www.amaljyothi.ac.in/staffprofile/ca_pis.php?deptCode=21" target="_blank" rel="noopener" style="color:#7A5A14;font-weight:600">officially published AJCE Civil Engineering PO-CA-PI framework ↗</a> — each department defines its own PIs, and the generated prompt will warn you if your subject looks like it belongs to a different department.</div></div>
+  <textarea id="psos" rows="7">PSO1: Apply mathematical and scientific principles to identify, formulate and solve problems related to all streams in Civil Engineering.
+PSO2: Function effectively as a team member, use modern engineering tools, conduct survey and laboratory experiments/field investigations, prepare detailed estimates for complex Civil Engineering work and interpret data for application to real life problems.
+PSO3: Apply ethical principles and execute and communicate sustainable solutions for Civil Engineering problems and projects.</textarea>
+  <p class="hint onlyReview">If you uploaded the AES export above, these auto-fill from the official record — only edit if you need to override.</p>
+</section>
+
+<section class="step" data-mode="both">
+  <div class="step-head"><span class="step-num"></span><h2>Anything else worth mentioning?</h2><span class="opt">optional</span></div>
+  <label class="fl" for="otherNotes">e.g., mark distribution changed between Series 1/2 this cycle, a new assessment method was introduced partway through, syllabus coverage was truncated, this is a split-section course, etc.</label>
+  <textarea id="otherNotes" rows="4"></textarea>
+  <p class="hint">Leave blank if nothing unusual applies. This isn't something Claude can infer from numbers alone — if something changed, say so here in your own words.</p>
+</section>
+
+<section class="step" data-mode="review">
+  <div class="step-head"><span class="step-num"></span><h2>What you already know</h2><span class="opt">optional — leave blank and Claude will draft a first pass from the data</span></div>
+  <div class="okbar"><b>Not sure how to summarize this?</b><div>If you have the raw End Sem question paper or the AES student-feedback export handy, paste it into a <a href="https://claude.ai/new" target="_blank" rel="noopener" style="color:#1F5636;font-weight:600">new Claude chat ↗</a> along with the helper prompt below, then paste Claude's summary into the boxes here instead of writing from memory.</div></div>
+  <textarea id="helperPrompt" rows="6" readonly style="font:12.5px/1.5 'JetBrains Mono',monospace;background:#FDFCFA"></textarea>
+  <div class="btnrow" style="margin-top:8px">
+    <button class="btn-ghost" id="copyHelperBtn" type="button" style="background:#fff;padding:8px 16px;font-size:13px">Copy helper prompt</button>
+    <span id="copiedHelper" style="color:var(--brass-soft);font-size:13px;align-self:center;opacity:0;transition:opacity .3s">Copied ✓</span>
+  </div>
+  <label class="fl" for="eseNotes" style="margin-top:16px">End Semester Examination — your notes on paper quality, CO coverage, difficulty, alignment</label>
+  <textarea id="eseNotes" rows="4" placeholder="e.g., Question 7 leaned heavily on CO3 while CO5 only appeared as a choice question; overall difficulty felt slightly higher than Series 2..."></textarea>
+  <label class="fl" for="fbNotes">Student feedback — themes you recall or read</label>
+  <textarea id="fbNotes" rows="4" placeholder="e.g., students found module 4 pace too fast; several asked for more worked examples on..."></textarea>
+  <p class="hint">If either box is left blank, Claude will write a first-pass observation from the attached data alone and clearly mark it <b>[DRAFT – please verify]</b> so it's never mistaken for something you actually reported.</p>
+</section>
+
+<section class="step" data-mode="review">
+  <div class="step-head"><span class="step-num"></span><h2>Target-revision policy</h2></div>
+
+  <div class="grid3">
+    <div><label class="fl" for="minSurplus">Minimum surplus above target (%) before recommending an increase</label><input type="number" id="minSurplus" value="3" min="0" step="0.5"></div>
+    <div><label class="fl" for="maxIncrease">Maximum target increase per cycle (percentage points)</label><input type="number" id="maxIncrease" value="2" min="0" step="0.5"></div>
+  </div>
+  <p class="hint">Targets are never recommended to decrease. If attainment fell short of target, the report focuses on gap-bridging actions instead of touching the target.</p>
+</section>
+
+<section class="step" data-mode="review">
+  <div class="step-head"><span class="step-num"></span><h2>Course Outcome wording</h2></div>
+  <div class="ckline" style="border-top:none;padding-top:0;margin-top:0">
+    <label><input type="checkbox" id="allowCORevision"><span><b>Allow Claude to revise CO wording where the attainment data strongly justifies it</b> — not just flag it. If left unchecked, Claude will only note revision suggestions (matching the standard faculty format) without rewriting any CO.</span></label>
+  </div>
+  <p class="hint">If checked and Claude does rewrite a CO, it must show an Original → Revised → Bloom level → Justification table. The refreshed mapping workbook (produced either way) will reflect the final decided values.</p>
+  <div class="ckline">
+    <label><input type="checkbox" id="plainTextReview"><span><b>Also output the CO–PO / CO–PSO mapping as plain text</b> (pipe-delimited lines for pasting into browser-based portals), in addition to the two files.</span></label>
+  </div>
+</section>
+
+<section class="step" data-mode="review">
+  <div class="step-head"><span class="step-num"></span><h2>Faculty sign-off</h2><span class="opt">optional</span></div>
+  <div class="grid2b">
+    <div><label class="fl" for="facultyOld">Faculty in charge (this offering)</label><input type="text" id="facultyOld" placeholder="Name"></div>
+    <div><label class="fl" for="facultyNew">Faculty in charge (next offering)</label><input type="text" id="facultyNew" placeholder="Name, if different"></div>
+  </div>
+  <p class="hint">If left blank, the report will just include blank signature lines for both. The report will also note that it is to be submitted to the Module Committee for approval and suggestions.</p>
+</section>
+
+<section class="step" data-mode="new">
+  <div class="step-head"><span class="step-num"></span><h2>Output</h2></div>
+  <div class="radios">
+    <label><input type="radio" name="coMode" value="newCOs" checked><span class="rt"><b>1 · Generate new COs and full mapping workbook</b><span>Fresh COs (L1–L6) + CO–PO/PSO matrix, justifications, WK mapping, PI/PSO/WK references, industrial relevance.</span></span></label>
+    <label><input type="radio" name="coMode" value="revise"><span class="rt"><b>2 · Revise my existing COs and generate everything</b><span>Everything in option 1, plus a CO Revision Justification sheet comparing your original and revised COs. Requires COs pasted above.</span></span></label>
+  </div>
+  <div class="ckline">
+    <label><input type="checkbox" id="plainText"><span><b>3 · Also output the CO–PO / CO–PSO mapping as plain text</b> (pipe-delimited lines for pasting into browser-based portals).</span></label>
+  </div>
+</section>
+
+<section class="step" data-mode="both">
+  <div class="step-head"><span class="step-num"></span><h2>Generate</h2></div>
+  <div class="btnrow">
+    <button class="btn-primary" id="genBtn" type="button">Generate prompt</button>
+  </div>
+  <p class="err" id="errMsg"></p>
+</section>
+
+<section id="preview">
+  <h2>Your prompt is ready</h2>
+  <p class="pmeta" id="pmeta"></p>
+  <textarea id="promptOut" readonly></textarea>
+  <div class="btnrow">
+    <button class="btn-ghost" id="copyBtn" type="button" style="background:#fff">Copy to clipboard</button>
+    <button class="btn-ghost" id="dlBtn" type="button" style="background:#fff">Download as .md</button>
+    <span id="copied">Copied ✓</span>
+  </div>
+  <div class="claudebar">
+    <div class="cb-text">
+      <b>Recommended: use Claude to run this prompt</b>
+      <span id="claudeBarText">Open Claude, paste the prompt (or upload the downloaded .md file), and send. Claude will build and return the complete Excel workbook for your course file.</span>
+    </div>
+    <a class="cb-btn" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude ↗</a>
+  </div>
+</section>
+
+<footer>Course File &amp; Attainment Prompt Builder · <b>v2.0</b> · July 2026 · AJCE Dept. of Civil Engineering · PI framework synced with the official AJCE PO-CA-PI publication · Only summary numbers extracted from any uploaded workbook stay on this page — no student names or per-student marks are read, stored, or transmitted. Only anonymous visit counts are collected for usage statistics.</footer>
+</main>
+
+<script>
+/* ---------- Mode toggling ---------- */
+
+function currentMode(){
+  return document.querySelector('input[name=pageMode]:checked').value;
+}
+
+function renumberSteps(){
+  let n = 0;
+  document.querySelectorAll('main > section.step').forEach(sec => {
+    if(getComputedStyle(sec).display !== 'none'){
+      n++;
+      const numEl = sec.querySelector('.step-num');
+      if(numEl) numEl.textContent = String(n).padStart(2,'0');
+    }
+  });
+}
+
+function setMode(mode){
+  document.querySelectorAll('[data-mode]').forEach(el => {
+    const dm = el.getAttribute('data-mode');
+    el.style.display = (dm==='both' || dm===mode) ? '' : 'none';
+  });
+  document.querySelectorAll('.onlyNew').forEach(el => { el.style.display = (mode==='new') ? '' : 'none'; });
+  document.querySelectorAll('.onlyReview').forEach(el => { el.style.display = (mode==='review') ? '' : 'none'; });
+  renumberSteps();
+}
+
+document.querySelectorAll('input[name=pageMode]').forEach(r => r.addEventListener('change', () => setMode(r.value)));
+setMode('new');
+
+function buildHelperPromptText(){
+  const cos = document.getElementById('cos').value.trim();
+  let t = `I'm reviewing a course after teaching it. Below is the end-sem question paper and/or the raw student feedback export from our AES portal. Please summarize, briefly:
+1. From the end-sem paper: how marks are distributed across this course's Course Outcomes (report the number of questions and total marks per CO, not a list of question numbers), the overall difficulty, and how well it matches the syllabus. If the question paper does NOT explicitly tag each question to a CO, assume marks are distributed EQUALLY across all COs as the default assumption, and say so explicitly in your summary.
+2. From the student feedback: the 3-5 most common themes in plain language, without quoting or naming individual students.
+Keep each summary to a few sentences so I can paste it directly into a course-exit report.
+`;
+  if(cos){
+    t += `\nFor reference, this course's current Course Outcomes are:\n${cos}\n`;
+  }
+  t += `\n[PASTE THE END-SEM PAPER AND/OR FEEDBACK EXPORT BELOW]`;
+  return t;
+}
+
+function updateHelperPrompt(){
+  document.getElementById('helperPrompt').value = buildHelperPromptText();
+}
+
+updateHelperPrompt();
+document.getElementById('cos').addEventListener('input', updateHelperPrompt);
+
+/* ---------- Workbook parsing (shared by the "review" path) ---------- */
+
+function findSheet(wb, re, exclude){
+  return wb.SheetNames.find(n => re.test(n) && !(exclude && exclude.test(n)));
+}
+
+function sheetRows(wb, name){
+  const ws = wb.Sheets[name];
+  if(!ws) return null;
+  return XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+}
+
+function cellStr(v){ return (v===null||v===undefined) ? '' : String(v).trim(); }
+
+function detectScheme(wb){
+  const scoreName = findSheet(wb, /students co score/i);
+  if(!scoreName) return {scheme:'unknown', note:'Could not find a "Students CO Score" sheet to check.'};
+  const rows = sheetRows(wb, scoreName);
+  const flat = rows.slice(0,12).map(r=>r.map(cellStr).join(' | ')).join(' \n ');
+  if(/ALL\s*COs/i.test(flat)){
+    return {scheme:'ktu', note:'Found an "ALL COs" tag in the Students CO Score header — end-sem marks are lumped, not split by CO (KTU / university-exam style).'};
+  }
+  return {scheme:'autonomous', note:'No "ALL COs" tag found — end-sem exam questions appear to be individually tagged to a CO (autonomous style).'};
+}
+
+function extractCOAttainment(wb){
+  const name = findSheet(wb, /attainment/i, /direct|indirect/i);
+  if(!name) return {ok:false, error:'Could not find a "CO Attainment" sheet.'};
+  const rows = sheetRows(wb, name);
+  const hdrIdx = rows.findIndex(r => cellStr(r[0])==='Attainment %' && /^CO\d+/i.test(cellStr(r[1])));
+  if(hdrIdx===-1) return {ok:false, error:'Found the CO Attainment sheet but not the CO table header row (this workbook has an "Attainment %" legend row too — layout may differ from the standard template).'};
+  const header = rows[hdrIdx];
+  const cos = [];
+  for(let c=1;c<header.length;c++){ if(cellStr(header[c]).match(/^CO\d+/)) cos.push({col:c, name:cellStr(header[c])}); }
+  const wanted = ['No of Students attempted','CO Target / Grade Point','Direct Assessment','Indirect Assessment','Attainment Score','Students scoring target mark','Attainment Level','CO Attained?'];
+  const data = {}; cos.forEach(co=>data[co.name]={});
+  for(let r=hdrIdx+1;r<rows.length;r++){
+    const label = cellStr(rows[r][0]);
+    if(!label) continue;
+    const match = wanted.find(w=>label.indexOf(w)===0);
+    if(match){ cos.forEach(co=>{ data[co.name][match] = cellStr(rows[r][co.col]); }); }
+  }
+  return {ok:true, cos:cos.map(c=>c.name), data};
+}
+
+function extractAssessmentMethods(wb){
+  const name = findSheet(wb, /assessment methods/i);
+  if(!name) return {ok:false, error:'Could not find an "Assessment Methods" sheet.'};
+  const rows = sheetRows(wb, name);
+  const hdrIdx = rows.findIndex(r => cellStr(r[0])==='COs');
+  if(hdrIdx===-1) return {ok:false, error:'Found the Assessment Methods sheet but not the "COs" header row.'};
+  const header = rows[hdrIdx].map(cellStr);
+  const body = [];
+  for(let r=hdrIdx+1;r<rows.length;r++){
+    const label = cellStr(rows[r][0]);
+    if(!label || !/^CO\d+/.test(label)) break;
+    body.push(rows[r].map(cellStr));
+  }
+  return {ok:true, header, body};
+}
+
+function toMarkdownTable(header, rows){
+  const h = '| '+header.join(' | ')+' |';
+  const sep = '| '+header.map(()=>'---').join(' | ')+' |';
+  const b = rows.map(r=>'| '+r.join(' | ')+' |').join('\n');
+  return h+'\n'+sep+'\n'+b;
+}
+
+function buildAttainmentSummaryText(wb){
+  const scheme = detectScheme(wb);
+  const att = extractCOAttainment(wb);
+  const am = extractAssessmentMethods(wb);
+  let out = `Detected scheme: ${scheme.scheme.toUpperCase()} — ${scheme.note}\n\n`;
+  if(att.ok){
+    const rowsWanted = ['No of Students attempted','CO Target / Grade Point','Direct Assessment','Indirect Assessment','Attainment Score','Students scoring target mark','Attainment Level','CO Attained?'];
+    const header = ['Metric', ...att.cos];
+    const rows = rowsWanted.map(w => [w, ...att.cos.map(co => att.data[co][w] || '')]);
+    out += 'CO ATTAINMENT SUMMARY\n' + toMarkdownTable(header, rows) + '\n\n';
+  } else {
+    out += `CO ATTAINMENT SUMMARY: could not auto-extract (${att.error}). Please fill this in manually.\n\n`;
+  }
+  if(am.ok){
+    out += 'ASSESSMENT METHODS / MARK DISTRIBUTION PER CO\n' + toMarkdownTable(am.header, am.body) + '\n';
+  } else {
+    out += `ASSESSMENT METHODS: could not auto-extract (${am.error}).\n`;
+  }
+  return {text: out, scheme: scheme.scheme};
+}
+
+function parseAESWorkbook(wb){
+  const name = wb.SheetNames[0];
+  const rows = sheetRows(wb, name);
+
+  const hdrIdx = rows.findIndex(r => cellStr(r[0])==='Course Code');
+  const course = {};
+  if(hdrIdx!==-1){
+    const h = rows[hdrIdx].map(cellStr);
+    const d = rows[hdrIdx+1];
+    h.forEach((label,i)=>{ if(label) course[label] = cellStr(d[i]); });
+  }
+
+  const coIdx = rows.findIndex(r => cellStr(r[0])==='Course Outcome');
+  const cos = [];
+  if(coIdx!==-1){
+    for(let r=coIdx+1;r<rows.length;r++){
+      if(/^CO\d+/i.test(cellStr(rows[r][1]))) cos.push({code:cellStr(rows[r][1]), statement:cellStr(rows[r][2])});
+      else if(cos.length) break;
+    }
+  }
+  const numCOs = cos.length;
+
+  function parseNumberedSection(marker, codeRe){
+    const idx = rows.findIndex(r => cellStr(r[0])===marker);
+    const out = [];
+    if(idx===-1) return out;
+    for(let r=idx+1;r<rows.length;r++){
+      const c1 = cellStr(rows[r][1]);
+      if(!c1 || !codeRe.test(c1)) { if(out.length) break; else continue; }
+      out.push({code:c1, statement:cellStr(rows[r][2])});
+    }
+    return out;
+  }
+  const pos = parseNumberedSection('Program Outcome', /^PO\d+$/i);
+  const psos = parseNumberedSection('Program Specific Outcome', /^PSO\d+$/i);
+
+  const copoIdx = rows.findIndex(r => cellStr(r[0])==='CO-PO Mapping');
+  const copo = {};
+  if(copoIdx!==-1 && numCOs){
+    for(let r=copoIdx+1;r<rows.length;r++){
+      const label = cellStr(rows[r][1]);
+      if(!label){ if(Object.keys(copo).length) break; else continue; }
+      if(!/^PO\d+$/i.test(label)) break;
+      const vals = [];
+      for(let c=2;c<2+numCOs;c++) vals.push(cellStr(rows[r][c]));
+      copo[label] = vals;
+    }
+  }
+
+  const copsoIdx = rows.findIndex(r => cellStr(r[0])==='CO-PSO Mapping');
+  const copso = {};
+  let copsoCOOrder = cos.map(c=>c.code);
+  if(copsoIdx!==-1){
+    const hdrRowIdx = rows.findIndex((r,i) => i>copsoIdx && cellStr(r[1])==='CO/PSO');
+    if(hdrRowIdx!==-1){
+      const hdr = rows[hdrRowIdx].map(cellStr);
+      copsoCOOrder = hdr.slice(2).filter(x=>/^CO\d+/i.test(x));
+      for(let r=hdrRowIdx+1;r<rows.length;r++){
+        const label = cellStr(rows[r][1]);
+        if(!label || !/^PSO\d+$/i.test(label)) break;
+        const vals = [];
+        for(let c=2;c<2+copsoCOOrder.length;c++) vals.push(cellStr(rows[r][c]));
+        copso[label] = vals;
+      }
+    }
+  }
+
+  return {course, cos, pos, psos, copo, copso, copsoCOOrder};
+}
+
+function aesToSummaryText(d){
+  let out = `Course: ${d.course['Course Code']||''} ${d.course['Course']||''}\n\n`;
+  out += 'COURSE OUTCOMES\n' + d.cos.map(c=>`${c.code}: ${c.statement}`).join('\n') + '\n\n';
+  if(Object.keys(d.copo).length){
+    const header = ['PO', ...d.cos.map(c=>c.code)];
+    const rows = Object.entries(d.copo).map(([po,vals])=>[po, ...vals]);
+    out += 'CO-PO MATRIX (current)\n' + toMarkdownTable(header, rows) + '\n\n';
+  }
+  if(Object.keys(d.copso).length){
+    const header = ['PSO', ...d.copsoCOOrder];
+    const rows = Object.entries(d.copso).map(([pso,vals])=>[pso, ...vals]);
+    out += 'CO-PSO MATRIX (current)\n' + toMarkdownTable(header, rows) + '\n\n';
+  }
+  if(d.pos.length) out += 'PO WORDING\n' + d.pos.map(p=>`${p.code}: ${p.statement}`).join('\n') + '\n\n';
+  if(d.psos.length) out += 'PSO WORDING\n' + d.psos.map(p=>`${p.code}: ${p.statement}`).join('\n') + '\n';
+  return out;
+}
+
+let detectedScheme = null;
+
+function wireFileInput(inputId, boxId, statusId, onParsed){
+  const input = document.getElementById(inputId);
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    const box = document.getElementById(boxId);
+    const status = document.getElementById(statusId);
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try{
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, {type:'array'});
+        onParsed(wb);
+        box.classList.add('has-file');
+        status.className = 'parsestatus ok';
+        status.textContent = `Parsed "${file.name}" — check the extracted summary below and correct anything that looks off.`;
+      } catch(err){
+        status.className = 'parsestatus err';
+        status.textContent = `Could not parse "${file.name}" (${err.message}). Please paste the summary manually below.`;
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+wireFileInput('attFile','fbox2','attStatus', (wb) => {
+  const res = buildAttainmentSummaryText(wb);
+  document.getElementById('attSummary').value = res.text;
+  detectedScheme = res.scheme;
+});
+
+document.getElementById('aesFile').addEventListener('change', () => {
+  const input = document.getElementById('aesFile');
+  const file = input.files[0];
+  const box = document.getElementById('fbox1');
+  const status = document.getElementById('aesStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const parsed = parseAESWorkbook(wb);
+      if(!parsed.course['Course Code'] && !parsed.cos.length){
+        throw new Error('layout not recognized as an AES CO-PO/PSO export');
+      }
+      document.getElementById('aesSummary').value = aesToSummaryText(parsed);
+      document.getElementById('aesCourseLine').textContent = `${parsed.course['Course Code']||''} — ${parsed.course['Course']||''} (${parsed.cos.length} COs, ${Object.keys(parsed.copo).length} POs mapped, ${Object.keys(parsed.copso).length} PSOs mapped)`;
+      document.getElementById('aesPreviewWrap').style.display = 'block';
+      const subjField = document.getElementById('subj');
+      if(!subjField.value.trim()) subjField.value = `${parsed.course['Course Code']||''} ${parsed.course['Course']||''}`.trim();
+      const cosField = document.getElementById('cos');
+      if(!cosField.value.trim()) cosField.value = parsed.cos.map(c=>`${c.code}: ${c.statement}`).join('\n');
+      updateHelperPrompt();
+      if(parsed.psos.length){
+        const psosField = document.getElementById('psos');
+        psosField.value = parsed.psos.map(p=>`${p.code}: ${p.statement}`).join('\n');
+      }
+      const detectedFramework = parsed.pos.length===12 ? '12' : (parsed.pos.length===11 ? '11' : null);
+      const pofSelect = document.getElementById('pof');
+      const pofNote = document.getElementById('pofNote');
+      if(detectedFramework){
+        pofSelect.value = detectedFramework;
+        pofNote.innerHTML = `Detected <b>${parsed.pos.length} POs</b> in the AES export (${detectedFramework==='12'?'legacy SAR framework':'current NBA / GAPC v4.0 framework'}) — pre-selected above. Confirm it's right, or change it if you're intentionally moving this course to the other framework. <b>Changing this from what's detected forces a full remapping</b> — PI codes don't line up mechanically between the two schemes, so Claude will redraw the CO&ndash;PO matrix from scratch under the new framework rather than relabel the old one.`;
+      } else {
+        pofNote.innerHTML = `Could not count POs from the AES export (found ${parsed.pos.length}) — please confirm the framework manually above.`;
+      }
+      window.__detectedFramework = detectedFramework;
+      box.classList.add('has-file');
+      status.className = 'parsestatus ok';
+      status.textContent = `Parsed "${file.name}" — subject, COs and PSOs auto-filled above. Check the extracted data and correct anything that looks off.`;
+    } catch(err){
+      status.className = 'parsestatus err';
+      status.textContent = `Could not parse "${file.name}" (${err.message}). This may not be an AES CO-PO/PSO export, or the layout differs — fill course details, COs and mapping manually below.`;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+/* ---------- Reference data (shared by both prompt paths) ---------- */
+
+const PI_SOURCE = 'https://www.amaljyothi.ac.in/staffprofile/ca_pis.php?deptCode=21';
+
+const PI_LIST = `PO1 Engineering Knowledge:
+1.1.1 Apply mathematical techniques such as calculus, linear algebra and statistics modelling to solve problems; 1.1.2 Apply advanced mathematical techniques to model and solve engineering problems; 1.2.1 Apply laws of natural science to an engineering problem; 1.3.1 Apply fundamental engineering concepts to solve engineering problems; 1.4.1 Apply engineering concepts to solve engineering problems.
+PO2 Problem Analysis:
+2.1.1 Articulate problem statements and identify objectives; 2.1.2 Identify engineering systems, variables and parameters to solve the problems; 2.1.3 Identify the mathematical, engineering and other relevant knowledge that applies to a given problem; 2.2.1 Reframe complex problems into interconnected sub-problems; 2.2.2 Identify, assemble and evaluate information and resources; 2.2.3 Identify existing processes/solution methods for solving the problem, including forming justified approximations and assumptions; 2.2.4 Compare and contrast alternative solution processes to select the best process; 2.3.1 Combine scientific principles and engineering concepts to formulate models (mathematical or otherwise) of a system or process that is appropriate in terms of applicability and required accuracy; 2.3.2 Identify assumptions (mathematical and physical) necessary to allow modeling of a system at the level of accuracy required; 2.4.1 Apply engineering mathematics and computations to solve mathematical models; 2.4.2 Produce and validate results through skillful use of contemporary engineering tools and models; 2.4.3 Identify sources of error in the solution process, and limitations of the solution; 2.4.4 Extract desired understanding and conclusions consistent with objectives and limitations of the analysis.
+PO3 Design/Development of Solutions:
+3.1.1 Recognize that need analysis is key to good problem definition; 3.1.2 Elicit and document engineering requirements from stakeholders; 3.1.3 Synthesize engineering requirements from a review of the state-of-the-art; 3.1.4 Extract engineering requirements from relevant engineering Codes and Standards such as ASME, ASTM, BIS, ISO and ASHRAE; 3.1.5 Explore and synthesize engineering requirements considering health, safety risks, environmental, cultural and societal issues; 3.1.6 Determine design objectives, functional requirements and arrive at specifications; 3.2.1 Apply formal idea generation tools to develop multiple engineering design solutions; 3.2.2 Build models/prototypes to develop a diverse set of design solutions; 3.2.3 Identify suitable criteria for the evaluation of alternative design solutions; 3.3.1 Apply formal decision-making tools to select optimal engineering design solutions for further development; 3.3.2 Consult with domain experts and stakeholders to select candidate engineering design solutions for further development; 3.4.1 Refine a conceptual design into a detailed design within the existing constraints of the resources; 3.4.2 Generate information through appropriate tests to improve or revise the design.
+PO4 Conduct Investigations of Complex Problems:
+4.1.1 Define a problem, its scope and importance for purposes of investigation; 4.1.2 Examine the relevant methods, tools and techniques of experiment design, calibration, data acquisition, analysis and presentation; 4.1.3 Apply appropriate instrumentation and/or software tools to make measurements of physical quantities; 4.1.4 Establish a relationship between measured data and underlying physical principles; 4.2.1 Design and develop an experimental approach, specify appropriate equipment and procedures; 4.2.2 Understand the importance of the statistical design of experiments and choose an appropriate experimental design plan based on the study objectives; 4.3.1 Use appropriate procedures, tools and techniques to conduct experiments and collect data; 4.3.2 Analyze data for trends and correlations, stating possible errors and limitations; 4.3.3 Represent data (in tabular and/or graphical forms) so as to facilitate analysis and explanation of the data, and drawing of conclusions; 4.3.4 Synthesize information and knowledge about the problem from the raw data to reach appropriate conclusions.
+PO5 Engineering Tool Usage:
+5.1.1 Identify modern engineering tools such as computer-aided drafting, modeling and analysis techniques and resources for engineering activities; 5.1.2 Create/adapt/modify/extend tools and techniques to solve engineering problems; 5.2.1 Identify the strengths and limitations of tools for (i) acquiring information, (ii) modeling and simulating, (iii) monitoring system performance, and (iv) creating engineering designs; 5.2.2 Demonstrate proficiency in using discipline-specific tools; 5.3.1 Discuss limitations and validate tools, techniques and resources; 5.3.2 Verify the credibility of results from tool use with reference to the accuracy and limitations, and the assumptions inherent in their use.
+PO6 The Engineer and The World:
+6.1.1 Identify and describe various engineering roles, particularly as pertains to protection of the public and public interest at the global, regional and local level; 6.2.1 Interpret legislation, regulations, codes, and standards relevant to your discipline and explain its contribution to the protection of the public.
+PO7 Ethics:
+8.1.1 Identify situations of unethical professional conduct and propose ethical alternatives; 8.2.1 Identify tenets of the ASME professional code of ethics; 8.2.2 Examine and apply moral & ethical principles to known case studies.
+PO8 Individual and Collaborative Team work:
+9.1.1 Recognize a variety of working and learning preferences, appreciate the value of diversity on a team; 9.1.2 Implement the norms of practice (e.g. rules, roles, charters, agendas, etc.) of effective team work, to accomplish a goal; 9.2.1 Demonstrate effective communication, problem-solving, conflict resolution and leadership skills; 9.2.2 Treat other team members respectfully; 9.2.3 Listen to other members; 9.2.4 Maintain composure in difficult situations; 9.3.1 Present results as a team with smooth integration of contributions from all individual efforts.
+PO9 Communication:
+10.1.1 Read, understand and interpret technical and non-technical information; 10.1.2 Produce clear, well-constructed and well-supported written engineering documents; 10.1.3 Create flow in a document or presentation - a logical progression of ideas so that the main point is clear; 10.2.1 Listen to and comprehend information, instructions and viewpoints of others; 10.2.2 Deliver effective oral presentations to technical and non-technical audiences; 10.3.1 Create engineering-standard figures, reports and drawings to complement writing and presentations; 10.3.2 Use a variety of media effectively to convey a message in a document or a presentation.
+PO10 Project Management and Finance:
+11.1.1 Describe various economic and financial costs/benefits of an engineering activity; 11.1.2 Analyze different forms of financial statements to evaluate the financial status of an engineering project; 11.2.1 Analyze and select the most appropriate proposal based on economic and financial considerations; 11.3.1 Identify the tasks required to complete an engineering activity and the resources required to complete the tasks; 11.3.2 Use project management tools to schedule an engineering project so it is completed on time and on budget.
+PO11 Life-Long Learning:
+12.1.1 Describe the rationale for the requirement for continuing professional development; 12.1.2 Identify deficiencies or gaps in knowledge and demonstrate an ability to source information to close this gap; 12.2.1 Identify historic points of technological advance in engineering that required practitioners to seek education in order to stay current; 12.2.2 Recognize the need and be able to clearly explain why it is vitally important to keep current regarding new developments in your field; 12.3.1 Source and comprehend technical literature and other credible sources of information; 12.3.2 Analyze sourced technical and popular information for feasibility, viability, sustainability, etc.`;
+
+const WK_LIST = `WK1 A systematic, theory-based understanding of the natural sciences applicable to the discipline and awareness of relevant social sciences.
+WK2 Conceptually-based mathematics, numerical analysis, data analysis, statistics and formal aspects of computer and information science to support detailed analysis and modelling applicable to the discipline.
+WK3 A systematic, theory-based formulation of engineering fundamentals required in the engineering discipline.
+WK4 Engineering specialist knowledge that provides theoretical frameworks and bodies of knowledge for the accepted practice areas in the engineering discipline; much is at the forefront of the discipline.
+WK5 Knowledge, including efficient resource use, environmental impacts, whole-life cost, re-use of resources, net zero carbon, and similar concepts, that supports engineering design and operations in a practice area.
+WK6 Knowledge of engineering practice (technology) in the practice areas in the engineering discipline.
+WK7 Knowledge of the role of engineering in society and identified issues in engineering practice in the discipline, such as the professional responsibility of an engineer to public safety and sustainable development.
+WK8 Engagement with selected knowledge in the current research literature of the discipline, awareness of the power of critical thinking and creative approaches to evaluate emerging issues.
+WK9 Ethics, inclusive behavior and conduct. Knowledge of professional ethics, responsibilities, and norms of engineering practice. Awareness of the need for diversity by reason of ethnicity, gender, age, physical ability etc. with mutual understanding and respect, and of inclusive attitudes.`;
+
+function collectTypeB(){
+  const ticked = [...document.querySelectorAll('#typeB input:checked')].map(c=>c.value);
+  const otherChecked = document.getElementById('typeBOther').checked;
+  const otherText = document.getElementById('typeBOtherText').value.trim();
+  if(otherChecked && otherText) ticked.push(otherText);
+  return ticked;
+}
+
+document.getElementById('typeBOther').addEventListener('change', (e) => {
+  document.getElementById('typeBOtherWrap').style.display = e.target.checked ? '' : 'none';
+});
+
+function projText(v){
+  if(v==='full') return 'Yes - full project / mini-project with a written report and presentation.';
+  if(v==='minor') return 'Minor group assignments only (below ~20% of marks, no formal report/presentation). Per the CO6 rule this does NOT qualify as a project - do NOT add CO6.';
+  return 'No project component. Do NOT add CO6.';
+}
+
+function frameworkVars(){
+  const pof = document.getElementById('pof').value;
+  const legacy = (pof==='12');
+  const poMax = legacy ? 'PO12' : 'PO11';
+  const co6Anchors = legacy
+    ? 'PO9 (teamwork), PO10 (communication, only with report/presentation) and PO12 (life-long learning, only if students self-learn beyond what is taught)'
+    : 'PO8 (teamwork), PO9 (communication, only with report/presentation) and PO11 (life-long learning, only if students self-learn beyond what is taught)';
+  const cautionList = legacy
+    ? 'Design (PO3), Society (PO6), Environment & Sustainability (PO7), Ethics (PO8), Project Management (PO11)'
+    : 'Design (PO3), Society (PO6), Ethics (PO7), Project Management (PO10)';
+  return {pof, legacy, poMax, co6Anchors, cautionList};
+}
+
+/* ---------- "New course" prompt ---------- */
+
+function buildNewModePrompt(){
+  const subj = document.getElementById('subj').value.trim();
+  const hours = document.getElementById('hours').value.trim();
+  const mods = document.getElementById('mods').value.trim();
+  const proj = document.getElementById('proj').value;
+  const syl = document.getElementById('syl').value.trim();
+  const cos = document.getElementById('cos').value.trim();
+  const psos = document.getElementById('psos').value.trim();
+  const otherNotes = document.getElementById('otherNotes').value.trim();
+  const mode = document.querySelector('input[name=coMode]:checked').value; // 'newCOs' | 'revise'
+  const {legacy, poMax, co6Anchors, cautionList} = frameworkVars();
+  const plain = document.getElementById('plainText').checked;
+  const align = document.getElementById('alignCOs').checked;
+  const typeB = collectTypeB();
+
+  const sheets=[
+    '1. "Course Outcomes" - columns: CO | Course Outcome Statement | Bloom\'s Level (L1-L6).'
+  ];
+  if(mode==='revise') sheets.push('2. "CO Revision Justification" - columns: CO | Original CO (as given) | Revised CO | Bloom\'s Level | Justification for Change. Explain every change (single dominant verb, correct Bloom level, coverage gaps, measurability).');
+  let n=sheets.length;
+  sheets.push(
+    `${++n}. "CO-PO-PSO Matrix" - rows = COs; columns = PO1..${poMax} then PSO1..PSO3 (PSO headers a different shade); cells 3/2/1/"-"; final row = column averages via live AVERAGE formulas rounded to 1 decimal.`,
+    `${++n}. "CO-PO Justification" - columns: CO | PO | Strength | PI(s) Addressed | Justification.`,
+    `${++n}. "CO-PSO Justification" - columns: CO | PSO | Strength | Justification (direct linkage to the PSO clause).`,
+    `${++n}. "PI Reference" - the PIs actually cited, with codes and full official wording; include a source note: "AJCE Civil Engineering PO-CA-PI framework, ${PI_SOURCE}".`,
+    `${++n}. "PSO Reference" - the PSO statements used in this run.`,
+    `${++n}. "CO-WK Matrix" - rows = COs; columns = WK1..WK9; cells 3/2/1/"-"; final row = live column averages.`,
+    `${++n}. "CO-WK Justification" - columns: CO | WK | Strength | Justification.`,
+    `${++n}. "WK Reference" - the nine WK statements.`,
+    `${++n}. "Industrial Relevance" - a single concise paragraph (approx. 120-180 words) on the industrial relevance of this course: sectors, employers, technologies and employment pathways it serves, written for the course file / SAR.`
+  );
+
+  let p=`You are preparing NBA/OBE accreditation artifacts for an engineering course. Using the inputs at the end of this prompt, ${mode==='revise'?'review and revise the existing Course Outcomes, then':'write Course Outcomes and'} produce a CO-PO/PSO and CO-WK mapping Excel workbook. Follow these rules exactly.
+
+IMPORTANT - NO INTERNAL LABELS IN THE OUTPUT: the letters (A, B, C...) below are for organizing THESE INSTRUCTIONS ONLY. Never write phrases like "per section C" or any other internal letter/section reference into the actual .xlsx deliverable — it must read as a clean, standalone workbook.
+
+A. COURSE OUTCOMES
+- ${mode==='revise'?'Review the COs I provide. Revise each so that it has':'Generate exactly 5 COs (CO1-CO5), normally one per module or logical group of modules, covering the whole syllabus. Each must have'} one dominant, measurable action verb ("Apply/Develop/Use/Analyze ... to ..."). Never use understand, know, learn, study, or be aware of. Never use two coordinate action verbs in one CO.
+${mode==='revise'?'- Keep exactly 5 COs (CO1-CO5) covering the whole syllabus; fix coverage gaps against the syllabus.\n':''}- Tag each CO with its Bloom level using L1-L6 notation (NOT K1-K6). Use mostly Apply (L3) for foundational courses, rising to Analyze (L4) or higher only where the content justifies it.
+- Add CO6 ("Work collaboratively in a team to develop, document and present a [subject] solution." L3/L4) ONLY if the project input below says a full project/mini-project exists. Otherwise do not add CO6.
+${align&&typeB.length?`- The course uses these Type B assessment methods: ${typeB.join(', ')}. Phrase the COs so these methods can directly assess them, where natural. Do not force it.`:''}
+
+B. ASSESSMENT CONTEXT (use for honest mapping decisions)
+- Type A assessment (always present): two internal series examinations.
+- Type B assessment methods used in this course: ${typeB.length?typeB.join(', '):'none'}.
+- A PO/WK may draw mapping support from a Type B method ONLY where that method genuinely and formally assesses it (e.g. Presentations may support PO9 only if formally assessed with marks; Mini-projects may support PO8).
+
+C. MAPPING METHOD (be honest; never over-map)
+- Correlation scale: 3 high, 2 medium, 1 low, blank ("-") = no correlation.
+- A CO maps to a PO only if its content develops, and the course assesses, one or more of that PO's Performance Indicators (PIs). Strength = how many PIs are covered and how deeply: most/deep = 3, some = 2, one/indirect = 1.
+- Cite the exact PI code(s) for every non-blank CO-PO cell. Justify CO-PSO cells by direct linkage to the PSO clause. Justify CO-WK cells by direct linkage to the WK statement.
+- Leave POs/PSOs/WKs blank where the course does not genuinely develop AND assess them. Empty cells are expected. Do not map ${cautionList} unless the syllabus truly covers them. A blank or a 1 is better than an inflated score.
+- For CO6 the usual honest anchors are ${co6Anchors}.
+- Compute the column average (one decimal) for every mapped PO/PSO/WK using live Excel AVERAGE formulas.
+
+D. REFERENCE - POs and PIs (keep codes exactly)
+${legacy?`FRAMEWORK FOR THIS RUN: LEGACY 12 POs (older NBA SAR format). Use these PO labels:
+PO1 Engineering Knowledge; PO2 Problem Analysis; PO3 Design/Development of Solutions; PO4 Conduct Investigations of Complex Problems; PO5 Modern Tool Usage; PO6 The Engineer and Society; PO7 Environment and Sustainability; PO8 Ethics; PO9 Individual and Team Work; PO10 Communication; PO11 Project Management and Finance; PO12 Life-Long Learning.
+PI code alignment in legacy mode: the PI list below already uses 12-attribute numbering, so realign codes to POs as follows - 6.x.x PIs belong to PO6 (Engineer and Society); 8.x.x to PO8 (Ethics); 9.x.x to PO9 (Team Work); 10.x.x to PO10 (Communication); 11.x.x to PO11 (Project Management); 12.x.x to PO12 (Life-Long Learning). Old PO7 (Environment and Sustainability) has NO published PIs - justify any PO7 mapping by direct linkage to the PO7 statement (as done for PSOs), and only where the syllabus genuinely covers environment/sustainability. Ignore the 11-PO grouping labels in the list below where they conflict with this alignment.
+`:''}Source: AJCE Civil Engineering PO-CA-PI framework, officially published at ${PI_SOURCE}
+IMPORTANT: This PI list belongs to the AJCE Civil Engineering (B.Tech) program. If my subject clearly belongs to another department or program, WARN me before proceeding, since each department defines its own PIs in its SAR.
+${PI_LIST}
+
+E. PSOs FOR THIS RUN
+${psos}
+(If these are the AJCE Civil Engineering PSOs and my subject is from another department, warn me before proceeding.)
+
+F. WK REFERENCE (Washington Accord / GAPC Knowledge & Attitude Profile)
+${WK_LIST}
+
+G. DELIVERABLE - EXCEL WORKBOOK (.xlsx)
+Build a workbook (Arial font; frozen header rows; cells color-coded 3=green, 2=amber, 1=orange; zero formula errors; verify formulas recalculate cleanly). Open with a three-line letterhead on the first sheet: "AMAL JYOTHI COLLEGE OF ENGINEERING (AUTONOMOUS)", "Department of Civil Engineering", and the course title with its code in brackets (e.g. "Design of Steel Structures (23CET401)"). Then include EXACTLY these sheets, and give me the file for download:
+${sheets.join('\n')}
+`;
+
+  if(plain){
+    p+=`
+H. ADDITIONAL DELIVERABLE - PLAIN TEXT MAPPING
+After the Excel, output the CO-PO and CO-PSO mapping as plain text, strictly: only two headings, exactly "CO-PO MAPPINGS" and "CO-PSO MAPPINGS"; one line per non-blank cell, pipe-delimited (CO | PO | strength | justification text). No tables, no markdown, no extra headings, and never put the "|" character inside justification text.
+`;
+  }
+
+  p+=`
+MY INPUTS FOR THIS RUN
+Subject: ${subj}
+Total hours / number of modules: ${hours} hours / ${mods} modules
+Project: ${projText(proj)}
+${mode==='revise'?`
+Existing Course Outcomes (to be reviewed and revised):
+${cos}
+`:''}
+Syllabus:
+${syl}
+${otherNotes?`
+Additional context from faculty:
+${otherNotes}
+`:''}`;
+  return p;
+}
+
+/* ---------- "Review a taught course" prompt ---------- */
+
+function schemeText(){
+  const sel = document.getElementById('scheme').value;
+  if(sel==='ktu') return 'KTU / University exam scheme — end-sem marks are NOT split by CO (a single lump score covers all COs). Do not claim granular end-sem CO coverage; describe coverage at the level the university exam actually allows.';
+  if(sel==='auto-scheme') return 'Autonomous scheme — end-sem exam questions are individually tagged to a CO. Genuine per-CO end-sem coverage commentary is possible and expected.';
+  if(detectedScheme==='ktu') return 'Auto-detected as KTU / University exam scheme (found an "ALL COs" tag in the attached data) — end-sem marks are NOT split by CO. Do not claim granular end-sem CO coverage.';
+  if(detectedScheme==='autonomous') return 'Auto-detected as Autonomous scheme (no "ALL COs" tag found) — end-sem exam questions are individually tagged to a CO, so genuine per-CO end-sem coverage commentary is expected.';
+  return 'Scheme not yet detected — infer from the attached CO Attainment data: if the end-sem component is identical across every CO, treat it as KTU/University-exam (CO-blind); if it varies meaningfully by CO, treat it as Autonomous (CO-tagged).';
+}
+
+function buildReviewModePrompt(){
+  const subj = document.getElementById('subj').value.trim();
+  const cls = document.getElementById('cls').value.trim();
+  const term = document.getElementById('term').value.trim();
+  const attSummary = document.getElementById('attSummary').value.trim();
+  const mapSummary = document.getElementById('aesSummary').value.trim();
+  const syl = document.getElementById('syl').value.trim();
+  const cos = document.getElementById('cos').value.trim();
+  const psos = document.getElementById('psos').value.trim();
+  const eseNotes = document.getElementById('eseNotes').value.trim();
+  const fbNotes = document.getElementById('fbNotes').value.trim();
+  const otherNotes = document.getElementById('otherNotes').value.trim();
+  const minSurplus = document.getElementById('minSurplus').value || '3';
+  const maxIncrease = document.getElementById('maxIncrease').value || '2';
+  const allowRevision = document.getElementById('allowCORevision').checked;
+  const proj = document.getElementById('proj').value;
+  const typeB = collectTypeB();
+  const align = document.getElementById('alignCOs').checked;
+  const facultyOld = document.getElementById('facultyOld').value.trim();
+  const facultyNew = document.getElementById('facultyNew').value.trim();
+  const plainTextReview = document.getElementById('plainTextReview').checked;
+
+  const {legacy, poMax, cautionList} = frameworkVars();
+  const pof = document.getElementById('pof').value;
+  const detected = window.__detectedFramework;
+  const frameworkChanged = detected && detected !== pof;
+  const detectedLabel = detected ? `${detected} POs (${detected==='12'?'legacy':'current'})` : 'not detected — no AES export uploaded, or count was ambiguous';
+
+  let p = `You are preparing an NBA/OBE course-exit and attainment-gap analysis for an engineering course, based on the actual attainment data and mapping data attached below. Do not invent numbers that aren't in the attached data — write "Not available" where something is missing. Follow these rules exactly.
+
+IMPORTANT - NO INTERNAL LABELS IN THE OUTPUT: the letters (A, B, C...) and item numbers (e.g. K.9, L.3) below are for organizing THESE INSTRUCTIONS ONLY. Never write phrases like "per section F", "as noted in section G", "(K.9)", or any other internal letter/number/section reference into the actual .docx or .xlsx deliverables. Both files must read as clean, standalone documents a faculty member or evaluator can pick up without this prompt in hand — describe things in plain language instead (e.g. "per the target-revision policy" rather than "per section F").
+
+A. COURSE CONTEXT
+Subject: ${subj}
+Class / batch: ${cls}
+Term reviewed: ${term}
+Assessment scheme: ${schemeText()}
+Project component: ${projText(proj)}
+Type B assessment methods planned for the next offering: ${typeB.length?typeB.join(', '):'none'}${align?' (COs should be read as aligned to these methods where genuinely assessed)':''}
+
+B. ATTAINMENT DATA (extracted from the CO Attainment workbook — summary only, no student-level data)
+${attSummary || 'Not provided — ask me for it before proceeding if the report needs it.'}
+
+C. EXISTING CO-PO/PSO MAPPING (from the AES portal export, or pasted manually — includes current COs, CO-PO matrix, CO-PSO matrix, and PO/PSO wording where available)
+${mapSummary || 'Not provided.'}
+
+D. SYLLABUS AND CURRENT COs
+Syllabus:
+${syl || 'Not provided.'}
+
+Current COs:
+${cos || 'Not provided.'}
+
+PSOs for this run:
+${psos || 'Not provided.'}
+
+E. FACULTY NOTES
+End Semester Examination observations (paper quality, CO coverage, difficulty, alignment):
+${eseNotes || 'Not provided by faculty — write a first-pass observation from the attached attainment/assessment data alone, and prefix it with "[DRAFT – please verify]" so it is clearly distinguished from a faculty-reported observation.'}
+
+Student feedback themes:
+${fbNotes || 'Not provided by faculty — write a first-pass observation only if the attached data supports an inference (e.g. from indirect assessment survey scores); prefix it with "[DRAFT – please verify]". Otherwise write "No student feedback data available."'}
+
+Other relevant context (mark distribution changes, new assessment methods introduced mid-cycle, disruptions, etc.):
+${otherNotes || 'Not provided — assume nothing unusual occurred beyond what the attached data shows.'}
+
+F. TARGET-REVISION POLICY
+- Recommend increasing a CO's target ONLY if attainment exceeded the current target by more than ${minSurplus} percentage points.
+- Any recommended increase should not exceed +${maxIncrease} percentage points per cycle, as per module committee recommendations.
+- Never recommend decreasing a target.
+- If attainment fell short of target, do NOT touch the target — focus entirely on gap-bridging actions tied to the specific underperforming component (internal/Direct Assessment, external/Direct Assessment, or Indirect Assessment survey).
+
+G. COURSE OUTCOME WORDING
+${allowRevision
+  ? `- You MAY revise CO wording where the attainment and syllabus data strongly justify it (e.g. a CO is chronically under-attained because it is unmeasurable, double-barrelled, or misaligned with what is actually assessed). Apply the same honest CO rules as section A of the department's CO-PO Mapping Prompt Builder: one dominant measurable action verb, Bloom level tagged L1-L6 (never K1-K6), no "understand/know/learn/study/be aware of". If you revise any CO, include an Original CO | Revised CO | Bloom Level | Justification for Change table in both the report and the workbook. If the project component above indicates a full project/mini-project and no existing CO covers teamwork, you may add a CO6 ("Work collaboratively in a team to develop, document and present a [subject] solution." L3/L4) following the same rule as the CO-PO Mapping Prompt Builder — never add CO6 for a minor-assignments-only or no-project course.`
+  : '- Do NOT rewrite any CO wording. Only note revision suggestions (what should change and why) in the report\'s "Revision of CO(s) (if required)" section, matching the department\'s standard faculty exit-review format. Do not produce a CO Revision Justification sheet in the workbook.'}
+
+H. PO FRAMEWORK AND MAPPING-CHANGE RULES
+PO framework for this run: ${legacy ? '12 POs (legacy SAR format)' : '11 POs (current NBA / GAPC v4.0 format)'}. Framework detected from the attached AES export: ${detectedLabel}.
+${frameworkChanged
+  ? 'IMPORTANT: the selected framework differs from what was detected in the attached AES export. PI codes do not align cell-for-cell between the two schemes, so treat this as a full remapping: redraw the entire CO-PO matrix from scratch under the newly selected framework, using the syllabus, COs, project component and Type B assessment methods above, and the honest-mapping rules below. Do NOT mechanically relabel or carry over the old numeric values. Note in the CO-PO Justification sheet that the framework changed this cycle and why.'
+  : 'The selected framework matches what was detected (or no AES export was provided) — no framework-driven remapping is required.'}
+${legacy?'PI code alignment in legacy mode: the PI list below already uses 12-attribute numbering, so realign codes to POs as follows - 6.x.x PIs belong to PO6 (Engineer and Society); 8.x.x to PO8 (Ethics); 9.x.x to PO9 (Team Work); 10.x.x to PO10 (Communication); 11.x.x to PO11 (Project Management); 12.x.x to PO12 (Life-Long Learning). Old PO7 (Environment and Sustainability) has NO published PIs - justify any PO7 mapping by direct linkage to the PO7 statement (as done for PSOs), and only where the syllabus genuinely covers environment/sustainability. Ignore the 11-PO grouping labels in the PI list below where they conflict with this alignment.\n':''}
+Mapping honesty rules (apply whether or not any cell value actually changes this cycle):
+- Correlation scale: 3 high, 2 medium, 1 low, blank ("-") = no correlation.
+- A CO maps to a PO only if its content develops, and the course assesses, one or more of that PO's Performance Indicators (PIs). Cite the exact PI code(s) for every non-blank CO-PO cell. Justify CO-PSO cells by direct linkage to the PSO clause. A Type B method above may support a PO/WK mapping only where it genuinely and formally assesses it.
+- Leave POs/PSOs blank where the course does not genuinely develop AND assess them. Do not map ${cautionList} unless the syllabus truly covers them. A blank or a 1 is better than an inflated score.
+- Do NOT change any CO-PO or CO-PSO cell value from what's in section C UNLESS: (a) you revised the corresponding CO's wording under section G, (b) the report's own Mapping Review section explicitly proposes and justifies a change based on this semester's attainment data, or (c) the framework changed as above. Re-derive the justification (PI citations) for the FINAL values either way — even values that stay numerically identical need a fresh, honest justification, since the attached AES export carries the numbers but no justification trail of its own.
+- Compute the column average (one decimal) for every mapped PO/PSO/WK using live Excel AVERAGE formulas.
+
+I. REFERENCE - POs AND PIs (keep codes exactly)
+Source: AJCE Civil Engineering PO-CA-PI framework, officially published at ${PI_SOURCE}
+IMPORTANT: This PI list belongs to the AJCE Civil Engineering (B.Tech) program. If this course clearly belongs to another department or program, WARN me before proceeding, since each department defines its own PIs in its SAR.
+${PI_LIST}
+
+J. WK REFERENCE (Washington Accord / GAPC Knowledge & Attitude Profile)
+${WK_LIST}
+
+K. COURSE EXIT, ATTAINMENT GAP & NEXT-OFFERING REPORT STRUCTURE (build all of this; it is a superset of the department's standard faculty exit-review format)
+1. Letterhead, exactly as three lines, centered: (i) "AMAL JYOTHI COLLEGE OF ENGINEERING (AUTONOMOUS)", (ii) "Department of Civil Engineering", (iii) the course title followed by the course code in brackets, e.g. "Design of Steel Structures (23CET401)". Below the letterhead, add a line: "Class: [class/batch] · Term: [term reviewed]", and directly under that, a note: "To be submitted to the Module Committee for approval and suggestions."
+2. Executive summary — one short paragraph: overall attainment health, how many COs met target, headline concerns.
+3. Course Outcomes — As Taught vs Final — CO | Wording as taught this offering | Final wording (identical to "as taught" unless revised) | Bloom Level. Always include this table, whether or not anything changed, so the course file has a clear record either way.
+4. CO Target vs Attainment table — CO | Target | Attainment Score | Gap (%) | Attainment Level | Attained? (Y/N) | Action proposed to bridge the gap (tie the action to whichever specific component underperformed — internal marks, external/end-sem marks, or the indirect survey) | Target revision (per the target-revision policy).
+5. Internal Assessment observations — Series 1, Series 2, Assignment(s), Other assessment(s), Laboratory (if applicable) — grounded in the per-CO mark distribution data. When describing how marks are distributed per CO, report the NUMBER of questions and total marks contributing to each CO (e.g. "CO2 was assessed by 3 questions worth 14 marks"), not the raw question-number/tag list. If one or more questions are shared across multiple COs (i.e. a single question contributes to more than one CO's total), call this out as a separate, distinct observation rather than folding it into the per-CO counts.
+6. End Semester Examination observations — CO coverage (phrased honestly for the detected scheme), Bloom's Taxonomy distribution, difficulty level, alignment with COs. Apply the same question-count-not-tag-list rule as item 5 if question-level data is available. Default assumption: if the end-sem paper's marks are NOT explicitly tagged to individual COs (no question-to-CO mapping given, e.g. a typical KTU-scheme paper), assume the end-sem marks are distributed EQUALLY across all COs rather than guessing an uneven split — state this assumption explicitly rather than presenting it as measured fact.
+7. Student Feedback observations and proposed action.
+8. Revision of CO(s) — the detailed justification table if anything was revised (item 3 above already gives the at-a-glance old-vs-final view).
+9. Review of CO-PO/CO-PSO Mapping — existing mapping vs proposed change, for any pair where this semester's data suggests a mismatch. State the change and a one-line rationale for each; for the full PI-cited justification behind any mapping value (changed or not), refer the reader to the accompanying CO-PO/PSO mapping workbook rather than duplicating the complete citation text here.
+10. Consolidated action plan for the next offering — a short prioritized bullet list pulling together items 3-9.
+11. Signatures — two signature blocks side by side or stacked: "Faculty In-Charge (This Offering): ${facultyOld||'_______________________'}   Signature: _______________   Date: _______________" and "Faculty In-Charge (Next Offering): ${facultyNew||'_______________________'}   Signature: _______________   Date: _______________". If both names are the same or only one was given, still show both blocks (the same person may sign twice, once for each role).
+Format: Word document (.docx), in the AJCE navy (#1B2A4A) and gold/brass (#A8823C) design system — navy section headers, brass accents, color-coded Target/Attainment cells (green = attained with margin, amber = attained close to target, red = not attained).
+
+L. CO-PO/PSO MAPPING WORKBOOK STRUCTURE (.xlsx — produce this EVERY time, regardless of whether anything changed this cycle)
+Open with the same three-line letterhead as the report (College name, Department, Course title with code in brackets), then build these sheets, in this order. If you did not revise any CO, skip sheet 2 entirely and shift the remaining sheet numbers up by one — do not leave a numbered gap.
+1. "Course Outcomes" - CO | Statement | Bloom's Level (L1-L6) - reflecting the FINAL COs for this cycle (revised if applicable, otherwise unchanged, but still Bloom-tagged).
+2. (Only if a CO was revised) "CO Revision Justification" - Original CO | Revised CO | Bloom Level | Justification for Change.
+3. "CO-PO-PSO Matrix" - rows = COs; columns = PO1..${poMax} then PSO1..PSO3 (PSO headers a different shade); cells 3/2/1/"-"; final row = column averages via live AVERAGE formulas rounded to 1 decimal. Reflects the FINAL decided values per the mapping-change rules above.
+4. "CO-PO Justification" - CO | PO | Strength | PI(s) Addressed | Justification. This is the authoritative, full rationale for every mapping value — the report only summarizes changes and points here for detail.
+5. "CO-PSO Justification" - CO | PSO | Strength | Justification (direct linkage to the PSO clause).
+6. "PI Reference" - the PIs actually cited, with codes and full official wording; include a source note: "AJCE Civil Engineering PO-CA-PI framework, ${PI_SOURCE}".
+7. "PSO Reference" - the PSO statements used in this run.
+8. "CO-WK Matrix" - rows = COs; columns = WK1..WK9; cells 3/2/1/"-"; final row = live column averages.
+9. "CO-WK Justification" - CO | WK | Strength | Justification.
+10. "WK Reference" - the nine WK statements.
+11. "Industrial Relevance" - a single concise paragraph (approx. 120-180 words) on the industrial relevance of this course, for the course file / SAR.
+Format: Arial font; frozen header rows; cells color-coded 3=green, 2=amber, 1=orange; zero formula errors; verify formulas recalculate cleanly.
+
+M. DELIVERABLES
+Give me BOTH files for download every time, independent of whether COs or mappings were actually revised this cycle:
+1. The Course Exit, Attainment Gap & Next-Offering Report as a .docx, per section K.
+2. The CO-PO/PSO mapping workbook as a .xlsx, per section L.
+${plainTextReview?'3. After the two files, also output the CO-PO and CO-PSO mapping as plain text: only two headings, exactly "CO-PO MAPPINGS" and "CO-PSO MAPPINGS"; one line per non-blank cell, pipe-delimited (CO | PO | strength | justification text). No tables, no markdown, no extra headings, and never put the "|" character inside justification text.':''}
+`;
+  return p;
+}
+
+function buildPrompt(){
+  return currentMode()==='new' ? buildNewModePrompt() : buildReviewModePrompt();
+}
+
+/* ---------- Generate / copy / download ---------- */
+
+document.getElementById('genBtn').addEventListener('click', () => {
+  const err = document.getElementById('errMsg');
+  const mode = currentMode();
+  const subj = document.getElementById('subj').value.trim();
+  const syl = document.getElementById('syl').value.trim();
+  err.style.display = 'none';
+
+  if(!subj){ err.textContent = 'Please enter the subject name.'; err.style.display = 'block'; return; }
+  if(!syl){ err.textContent = 'Please paste the syllabus.'; err.style.display = 'block'; return; }
+
+  if(mode==='new'){
+    const coMode = document.querySelector('input[name=coMode]:checked').value;
+    const cos = document.getElementById('cos').value.trim();
+    if(coMode==='revise' && !cos){ err.textContent = 'Option 2 revises your existing COs - please paste them above, or choose option 1.'; err.style.display = 'block'; return; }
+  } else {
+    const attSummary = document.getElementById('attSummary').value.trim();
+    if(!attSummary){ err.textContent = 'Please upload the CO Attainment workbook or paste the summary manually.'; err.style.display = 'block'; return; }
+  }
+
+  const prompt = buildPrompt();
+  document.getElementById('promptOut').value = prompt;
+
+  const claudeBarText = document.getElementById('claudeBarText');
+  if(mode==='new'){
+    claudeBarText.textContent = 'Open Claude, paste the prompt (or upload the downloaded .md file), and send. Claude will build and return the complete Excel workbook for your course file.';
+    const coMode = document.querySelector('input[name=coMode]:checked').value;
+    document.getElementById('pmeta').textContent = `${subj} · ${coMode==='revise'?'Revise existing COs':'New COs'} · ${document.getElementById('plainText').checked?'with':'without'} plain-text mapping · ${prompt.length.toLocaleString()} characters`;
+  } else {
+    claudeBarText.textContent = 'Open Claude, paste the prompt (or upload the downloaded .md file), and send. Claude will return two files: the Course Exit, Attainment Gap & Next-Offering Report (.docx) and the CO–PO/PSO mapping workbook (.xlsx) — every time, whether or not anything was revised.';
+    document.getElementById('pmeta').textContent = `${subj} · ${document.getElementById('allowCORevision').checked ? 'CO wording revision allowed' : 'CO wording locked'} · ${prompt.length.toLocaleString()} characters`;
+  }
+
+  document.getElementById('preview').style.display = 'block';
+  document.getElementById('preview').scrollIntoView({behavior:'smooth'});
+  if(window.goatcounter && window.goatcounter.count){
+    window.goatcounter.count({path:'generate-'+mode, title:'Prompt generated', event:true});
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const t = document.getElementById('promptOut');
+  try{ await navigator.clipboard.writeText(t.value); }
+  catch(e){ t.select(); document.execCommand('copy'); }
+  const c = document.getElementById('copied'); c.style.opacity='1'; setTimeout(()=>c.style.opacity='0',1800);
+});
+
+document.getElementById('copyHelperBtn').addEventListener('click', async () => {
+  const t = document.getElementById('helperPrompt');
+  try{ await navigator.clipboard.writeText(t.value); }
+  catch(e){ t.select(); document.execCommand('copy'); }
+  const c = document.getElementById('copiedHelper'); c.style.opacity='1'; setTimeout(()=>c.style.opacity='0',1800);
+});
+
+document.getElementById('dlBtn').addEventListener('click', () => {
+  const subj = document.getElementById('subj').value.trim().replace(/[^a-z0-9]+/gi,'_') || 'course';
+  const blob = new Blob([document.getElementById('promptOut').value], {type:'text/markdown'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentMode()==='new'?'CO_PO_prompt':'Exit_Gap_NextOffering_prompt'}_${subj}.md`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>
